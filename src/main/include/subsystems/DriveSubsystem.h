@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <frc/ADIS16470_IMU.h>
+#include <frc/ADXRS450_Gyro.h>
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Rotation2d.h>
@@ -111,7 +111,7 @@ class DriveSubsystem : public frc2::SubsystemBase {
   MAXSwerveModule m_rearRight;
 
   // The gyro sensor
-  frc::ADIS16470_IMU m_gyro;
+  frc::ADXRS450_Gyro m_gyro;
 
   // Slew rate filter variables for controlling lateral acceleration
   double m_currentRotation = 0.0;
