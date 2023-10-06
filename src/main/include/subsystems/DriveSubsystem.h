@@ -12,6 +12,7 @@
 #include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/kinematics/SwerveDriveOdometry.h>
 #include <frc2/command/SubsystemBase.h>
+#include <frc/smartdashboard/Field2d.h>
 
 #include "Constants.h"
 #include "MAXSwerveModule.h"
@@ -127,4 +128,7 @@ class DriveSubsystem : public frc2::SubsystemBase {
   // Odometry class for tracking robot pose
   // 4 defines the number of modules
   frc::SwerveDriveOdometry<4> m_odometry;
+
+  // Pose viewing
+  frc::Field2d m_field;
 };
