@@ -8,6 +8,7 @@
 #include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/velocity.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #include "Constants.h"
 #include "utils/SwerveUtils.h"
@@ -27,13 +28,18 @@ DriveSubsystem::DriveSubsystem()
                  frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}),
                  {m_frontLeft.GetPosition(), m_frontRight.GetPosition(),
                   m_rearLeft.GetPosition(), m_rearRight.GetPosition()},
-                 frc::Pose2d{}} {}
+                 frc::Pose2d{}} {
+  // put a field2d in NT
+  frc::SmartDashboard::PutData("Field", &m_field);
+}
 
 void DriveSubsystem::Periodic() {
   // Implementation of subsystem periodic method goes here.
   m_odometry.Update(frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}),
                     {m_frontLeft.GetPosition(), m_rearLeft.GetPosition(),
                      m_frontRight.GetPosition(), m_rearRight.GetPosition()});
+
+  m_field.SetRobotPose(m_odometry.GetPose());
 }
 
 void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,

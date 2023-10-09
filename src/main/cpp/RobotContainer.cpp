@@ -15,6 +15,7 @@
 #include <frc2/command/button/JoystickButton.h>
 #include <units/angle.h>
 #include <units/velocity.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #include <utility>
 
