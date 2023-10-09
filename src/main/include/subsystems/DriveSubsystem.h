@@ -44,6 +44,11 @@ class DriveSubsystem : public frc2::SubsystemBase {
              units::meters_per_second_t ySpeed, units::radians_per_second_t rot,
              bool fieldRelative, bool rateLimit);
 
+  /**
+   * Drives the robot based on a ChassisSpeeds
+   *
+   * @param speeds        ChassisSpeeds to drive based on
+   */
   void Drive(frc::ChassisSpeeds speeds);
 
   /**
@@ -93,6 +98,25 @@ class DriveSubsystem : public frc2::SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   void ResetOdometry(frc::Pose2d pose);
+
+  /**
+   * Discretizes a continuous-time chassis speed.
+   * Converted from the 254 season code
+   *
+   * @param vx Forward velocity.
+   * @param vy Sideways velocity.
+   * @param omega Angular velocity.
+   * @param dt The duration of the timestep the speeds should be applied for.
+   */
+  frc::ChassisSpeeds discretize(double vx, double vy, double omega, double dt);
+
+  /**
+   * Discretizes a continuous-time chassis speed.
+   *
+   * @param continuousSpeeds The continuous speeds.
+   * @param dt The duration of the timestep the speeds should be applied for.
+   */
+  frc::ChassisSpeeds discretize(frc::ChassisSpeeds continuousSpeeds, double dt);
 
   frc::SwerveDriveKinematics<4> kDriveKinematics{
       frc::Translation2d{DriveConstants::kWheelBase / 2,

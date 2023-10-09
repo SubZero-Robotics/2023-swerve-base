@@ -9,6 +9,7 @@
 #include <units/angular_velocity.h>
 #include <units/velocity.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <units/length.h>
 
 #include "Constants.h"
 #include "utils/SwerveUtils.h"
@@ -170,6 +171,23 @@ void DriveSubsystem::ZeroHeading() { m_gyro.Reset(); }
 double DriveSubsystem::GetTurnRate() { return -m_gyro.GetRate(); }
 
 frc::Pose2d DriveSubsystem::GetPose() { return m_odometry.GetPose(); }
+
+frc::ChassisSpeeds discretize(double vx, double vy, double omega, double dt) {
+
+  frc::Pose2d desiredDeltaPose = frc::Pose2d(units::meter_t(vx * dt), 
+    units::meter_t(vy * dt), 
+    frc::Rotation2d(units::degree_t(omega * dt)));
+  frc::Twist2d twist = frc::Pose2d().Log(desiredDeltaPose);
+  units::meters_per_second_t mps_vx = units::meters_per_second_t(twist.dx.value() / dt);
+  units::meters_per_second_t mps_vy = units::meters_per_second_t(twist.dy.value() / dt);
+  units::radians_per_second_t rps_omega = units::radians_per_second_t(twist.dtheta.value() / dt);
+  return frc::ChassisSpeeds {
+    .vx = mps_vx,
+    .vy = mps_vy,
+    .omega = rps_omega
+  };
+
+}
 
 void DriveSubsystem::ResetOdometry(frc::Pose2d pose) {
   m_odometry.ResetPosition(
