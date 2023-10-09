@@ -43,6 +43,8 @@ class DriveSubsystem : public frc2::SubsystemBase {
              units::meters_per_second_t ySpeed, units::radians_per_second_t rot,
              bool fieldRelative, bool rateLimit);
 
+  void Drive(frc::ChassisSpeeds speeds);
+
   /**
    * Sets the wheels into an X formation to prevent movement.
    */

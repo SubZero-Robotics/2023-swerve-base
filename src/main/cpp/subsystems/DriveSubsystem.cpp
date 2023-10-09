@@ -123,6 +123,10 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
   m_rearRight.SetDesiredState(br);
 }
 
+void DriveSubsystem::Drive(frc::ChassisSpeeds speeds) {
+  DriveSubsystem::SetModuleStates(kDriveKinematics.ToSwerveModuleStates(speeds));
+}
+
 void DriveSubsystem::SetX() {
   m_frontLeft.SetDesiredState(
       frc::SwerveModuleState{0_mps, frc::Rotation2d{45_deg}});
