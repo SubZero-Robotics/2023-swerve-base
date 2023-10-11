@@ -9,6 +9,7 @@
 #include <units/angular_velocity.h>
 #include <units/velocity.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <units/length.h>
 
 #include "Constants.h"
 #include "utils/SwerveUtils.h"
@@ -45,7 +46,7 @@ void DriveSubsystem::Periodic() {
 void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
                            units::meters_per_second_t ySpeed,
                            units::radians_per_second_t rot, bool fieldRelative,
-                           bool rateLimit) {
+                           bool rateLimit, units::second_t periodSeconds) {
   double xSpeedCommanded;
   double ySpeedCommanded;
 
@@ -68,8 +69,10 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
 
     double currentTime = wpi::Now() * 1e-6;
     double elapsedTime = currentTime - m_prevTime;
-    double angleDif = SwerveUtils::AngleDifference(inputTranslationDir,
-                                                   m_currentTranslationDir);
+    double angleDif = SwerveUtils::AngleDifference(inputTranslationDir, m_currentTranslationDir);
+
+    driveLoopTime = units::second_t{elapsedTime};
+
     if (angleDif < 0.45 * std::numbers::pi) {
       m_currentTranslationDir = SwerveUtils::StepTowardsCircular(
           m_currentTranslationDir, inputTranslationDir,
@@ -113,11 +116,13 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
       m_currentRotation * DriveConstants::kMaxAngularSpeed;
 
   auto states = kDriveKinematics.ToSwerveModuleStates(
+    DriveSubsystem::discretize(
       fieldRelative
           ? frc::ChassisSpeeds::FromFieldRelativeSpeeds(
                 xSpeedDelivered, ySpeedDelivered, rotDelivered,
                 frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}))
-          : frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered, rotDelivered});
+          : frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered, rotDelivered},
+          (driveLoopTime*4)));
 
   kDriveKinematics.DesaturateWheelSpeeds(&states, DriveConstants::kMaxSpeed);
 
@@ -170,6 +175,16 @@ void DriveSubsystem::ZeroHeading() { m_gyro.Reset(); }
 double DriveSubsystem::GetTurnRate() { return -m_gyro.GetRate(); }
 
 frc::Pose2d DriveSubsystem::GetPose() { return m_odometry.GetPose(); }
+
+frc::ChassisSpeeds DriveSubsystem::discretize(units::meters_per_second_t vx, units::meters_per_second_t vy, units::radians_per_second_t omega, units::second_t dt) {
+  frc::Pose2d desiredDeltaPose{vx * dt, vy * dt, omega * dt};
+  frc::Twist2d twist = frc::Pose2d{}.Log(desiredDeltaPose);
+  return frc::ChassisSpeeds {twist.dx / dt, twist.dy / dt, twist.dtheta / dt};
+}
+
+frc::ChassisSpeeds DriveSubsystem::discretize(frc::ChassisSpeeds continuousSpeeds, units::second_t dt) {
+  return discretize(continuousSpeeds.vx, continuousSpeeds.vy, continuousSpeeds.omega, dt);
+}
 
 void DriveSubsystem::ResetOdometry(frc::Pose2d pose) {
   m_odometry.ResetPosition(

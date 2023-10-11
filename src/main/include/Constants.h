@@ -10,6 +10,7 @@
 #include <units/current.h>
 #include <units/length.h>
 #include <units/velocity.h>
+#include <units/time.h>
 
 #include <numbers>
 
@@ -56,6 +57,8 @@ constexpr int kFrontRightTurningCanId = 1;
 constexpr int kRearRightTurningCanId = 3;
 constexpr int kFrontLeftTurningCanId = 7;
 constexpr int kRearLeftTurningCanId = 5;
+
+constexpr units::second_t kLoopTime = 0.022_s;
 }  // namespace DriveConstants
 
 namespace ModuleConstants {
