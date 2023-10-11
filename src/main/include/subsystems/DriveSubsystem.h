@@ -16,6 +16,7 @@
 
 #include "Constants.h"
 #include "MAXSwerveModule.h"
+#include "utils/Logger.h"
 
 class DriveSubsystem : public frc2::SubsystemBase {
  public:
@@ -39,10 +40,12 @@ class DriveSubsystem : public frc2::SubsystemBase {
    * @param fieldRelative Whether the provided x and y speeds are relative to
    *                      the field.
    * @param rateLimit     Whether to enable rate limiting for smoother control.
+   * 
+   * @param periodSeconds Time between periodic loops
    */
   void Drive(units::meters_per_second_t xSpeed,
              units::meters_per_second_t ySpeed, units::radians_per_second_t rot,
-             bool fieldRelative, bool rateLimit);
+             bool fieldRelative, bool rateLimit, units::second_t periodSeconds);
 
   /**
    * Drives the robot based on a ChassisSpeeds
@@ -108,7 +111,7 @@ class DriveSubsystem : public frc2::SubsystemBase {
    * @param omega Angular velocity.
    * @param dt The duration of the timestep the speeds should be applied for.
    */
-  frc::ChassisSpeeds discretize(double vx, double vy, double omega, double dt);
+  frc::ChassisSpeeds discretize(units::meters_per_second_t vx, units::meters_per_second_t vy, units::radians_per_second_t omega, units::second_t dt);
 
   /**
    * Discretizes a continuous-time chassis speed.
@@ -116,7 +119,7 @@ class DriveSubsystem : public frc2::SubsystemBase {
    * @param continuousSpeeds The continuous speeds.
    * @param dt The duration of the timestep the speeds should be applied for.
    */
-  frc::ChassisSpeeds discretize(frc::ChassisSpeeds continuousSpeeds, double dt);
+  frc::ChassisSpeeds discretize(frc::ChassisSpeeds continuousSpeeds, units::second_t dt);
 
   frc::SwerveDriveKinematics<4> kDriveKinematics{
       frc::Translation2d{DriveConstants::kWheelBase / 2,
@@ -139,6 +142,9 @@ class DriveSubsystem : public frc2::SubsystemBase {
 
   // The gyro sensor
   frc::ADXRS450_Gyro m_gyro;
+
+  // time last loop took, "deltatime"
+  units::second_t driveLoopTime;
 
   // Slew rate filter variables for controlling lateral acceleration
   double m_currentRotation = 0.0;
