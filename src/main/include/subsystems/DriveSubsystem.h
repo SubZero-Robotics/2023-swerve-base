@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <frc/ADXRS450_Gyro.h>
+#include <AHRS.h>
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Rotation2d.h>
@@ -121,6 +121,8 @@ class DriveSubsystem : public frc2::SubsystemBase {
    */
   frc::ChassisSpeeds discretize(frc::ChassisSpeeds continuousSpeeds, units::second_t dt);
 
+  static void LogSpeeds(wpi::array<frc::SwerveModuleState, 4> desiredStates);
+
   frc::SwerveDriveKinematics<4> kDriveKinematics{
       frc::Translation2d{DriveConstants::kWheelBase / 2,
                          DriveConstants::kTrackWidth / 2},
@@ -141,7 +143,7 @@ class DriveSubsystem : public frc2::SubsystemBase {
   MAXSwerveModule m_rearRight;
 
   // The gyro sensor
-  frc::ADXRS450_Gyro m_gyro;
+  AHRS m_gyro{frc::SPI::Port::kMXP};
 
   // time last loop took, "deltatime"
   units::second_t driveLoopTime;
