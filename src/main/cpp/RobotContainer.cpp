@@ -22,6 +22,7 @@
 
 #include "Constants.h"
 #include "subsystems/DriveSubsystem.h"
+#include "commands/Funni.h"
 
 using namespace DriveConstants;
 
@@ -52,6 +53,10 @@ void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController,
                        frc::XboxController::Button::kRightBumper)
       .WhileTrue(new frc2::RunCommand([this] { m_drive.SetX(); }, {&m_drive}));
+
+  frc2::JoystickButton(&m_driverController,
+                       frc::XboxController::Button::kX).WhileTrue(
+        GamepieceFunni(&m_leds).ToPtr());
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {

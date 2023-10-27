@@ -1,17 +1,17 @@
-#include "ConnectorX.h"
+#include "moduledrivers/ConnectorX.h"
 
 using namespace ConnectorX;
 
-ConnectorX::ConnectorX(uint8_t slaveAddress, frc::I2C::Port port)
+ConnectorX::ConnectorX::ConnectorX(uint8_t slaveAddress, frc::I2C::Port port)
     : _i2c(std::make_unique<frc::I2C>(port, slaveAddress)),
       _slaveAddress(slaveAddress) {
   setOff(LedPort::P0);
   setOff(LedPort::P1);
 }
 
-bool ConnectorX::initialize() { return !_i2c->AddressOnly(); }
+bool ConnectorX::ConnectorX::initialize() { return !_i2c->AddressOnly(); }
 
-void ConnectorX::configureDigitalPin(DigitalPort port, PinMode mode) {
+void ConnectorX::ConnectorX::configureDigitalPin(DigitalPort port, PinMode mode) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::DigitalSetup;
   cmd.commandData.commandDigitalSetup = {.port = (uint8_t)port,
@@ -20,7 +20,7 @@ void ConnectorX::configureDigitalPin(DigitalPort port, PinMode mode) {
   sendCommand(cmd);
 }
 
-void ConnectorX::writeDigitalPin(DigitalPort port, bool value) {
+void ConnectorX::ConnectorX::writeDigitalPin(DigitalPort port, bool value) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::DigitalWrite;
   cmd.commandData.commandDigitalWrite = {.port = (uint8_t)port,
@@ -29,7 +29,7 @@ void ConnectorX::writeDigitalPin(DigitalPort port, bool value) {
   sendCommand(cmd);
 }
 
-bool ConnectorX::readDigitalPin(DigitalPort port) {
+bool ConnectorX::ConnectorX::readDigitalPin(DigitalPort port) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::DigitalRead;
   cmd.commandData.commandDigitalRead = {.port = (uint8_t)port};
@@ -38,7 +38,7 @@ bool ConnectorX::readDigitalPin(DigitalPort port) {
   return res.responseData.responseDigitalRead.value;
 }
 
-uint16_t ConnectorX::readAnalogPin(AnalogPort port) {
+uint16_t ConnectorX::ConnectorX::readAnalogPin(AnalogPort port) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::ReadAnalog;
   cmd.commandData.commandReadAnalog = {.port = (uint8_t)port};
@@ -47,7 +47,7 @@ uint16_t ConnectorX::readAnalogPin(AnalogPort port) {
   return res.responseData.responseReadAnalog.value;
 }
 
-void ConnectorX::setLedPort(LedPort port) {
+void ConnectorX::ConnectorX::setLedPort(LedPort port) {
   if (port != _currentLedPort) {
     _currentLedPort = port;
     Commands::Command cmd;
@@ -57,7 +57,7 @@ void ConnectorX::setLedPort(LedPort port) {
   }
 }
 
-void ConnectorX::setOn(LedPort port) {
+void ConnectorX::ConnectorX::setOn(LedPort port) {
   setLedPort(port);
 
   Commands::Command cmd;
@@ -66,7 +66,7 @@ void ConnectorX::setOn(LedPort port) {
   sendCommand(cmd);
 }
 
-void ConnectorX::setOff(LedPort port) {
+void ConnectorX::ConnectorX::setOff(LedPort port) {
   setLedPort(port);
 
   Commands::Command cmd;
@@ -75,8 +75,8 @@ void ConnectorX::setOff(LedPort port) {
   sendCommand(cmd);
 }
 
-void ConnectorX::setPattern(LedPort port, PatternType pattern,
-                            bool oneShot = false, int16_t delay = -1) {
+void ConnectorX::ConnectorX::setPattern(LedPort port, PatternType pattern,
+                            bool oneShot, int16_t delay) {
   setLedPort(port);
 
   Commands::Command cmd;
@@ -87,7 +87,7 @@ void ConnectorX::setPattern(LedPort port, PatternType pattern,
   sendCommand(cmd);
 }
 
-void ConnectorX::setColor(LedPort port, uint8_t red, uint8_t green,
+void ConnectorX::ConnectorX::setColor(LedPort port, uint8_t red, uint8_t green,
                           uint8_t blue) {
   setLedPort(port);
 
@@ -99,13 +99,13 @@ void ConnectorX::setColor(LedPort port, uint8_t red, uint8_t green,
   sendCommand(cmd);
 }
 
-bool ConnectorX::setColor(LedPort port, uint32_t color) {
+bool ConnectorX::ConnectorX::setColor(LedPort port, uint32_t color) {
   setLedPort(port);
 
   setColor(port, (color >> 16) & 255, (color >> 8) & 255, color & 255);
 }
 
-bool ConnectorX::getPatternDone(LedPort port) {
+bool ConnectorX::ConnectorX::getPatternDone(LedPort port) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::ReadPatternDone;
   cmd.commandData.commandReadPatternDone = {};
@@ -114,7 +114,7 @@ bool ConnectorX::getPatternDone(LedPort port) {
   return res.responseData.responsePatternDone.done;
 }
 
-void ConnectorX::setConfig(Configuration config) {
+void ConnectorX::ConnectorX::setConfig(Commands::Configuration config) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::SetConfig;
   cmd.commandData.commandSetConfig.config = config;
@@ -122,7 +122,7 @@ void ConnectorX::setConfig(Configuration config) {
   sendCommand(cmd);
 }
 
-Configuration ConnectorX::readConfig() {
+Commands::Configuration ConnectorX::ConnectorX::readConfig() {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::ReadConfig;
   cmd.commandData.commandReadConfig = {};
@@ -131,7 +131,7 @@ Configuration ConnectorX::readConfig() {
   return res.responseData.responseReadConfiguration.config;
 }
 
-void ConnectorX::sendRadioMessage(Message message) {
+void ConnectorX::ConnectorX::sendRadioMessage(Message message) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::RadioSend;
   cmd.commandData.commandRadioSend.msg = message;
@@ -139,7 +139,7 @@ void ConnectorX::sendRadioMessage(Message message) {
   sendCommand(cmd);
 }
 
-Message ConnectorX::getLatestRadioMessage() {
+Message ConnectorX::ConnectorX::getLatestRadioMessage() {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::RadioGetLatestReceived;
   cmd.commandData.commandRadioGetLatestReceived = {};
@@ -148,7 +148,7 @@ Message ConnectorX::getLatestRadioMessage() {
   return res.responseData.responseRadioLastReceived.msg;
 }
 
-Commands::Response ConnectorX::sendCommand(Commands::Command command,
+Commands::Response ConnectorX::ConnectorX::sendCommand(Commands::Command command,
                                            bool expectResponse) {
   using namespace Commands;
 
@@ -167,7 +167,7 @@ Commands::Response ConnectorX::sendCommand(Commands::Command command,
     sendLen = 0;
     break;
   case CommandType::ReadConfig:
-    sendLend = 0;
+    sendLen = 0;
     recSize = sizeof(ResponseReadConfiguration);
     break;
   case CommandType::ReadPatternDone:
@@ -198,7 +198,7 @@ Commands::Response ConnectorX::sendCommand(Commands::Command command,
   case CommandType::Pattern:
     sendLen = sizeof(CommandPattern);
     break;
-  case CommandType::Color:
+  case CommandType::ChangeColor:
     sendLen = sizeof(CommandColor);
     break;
   case CommandType::SetConfig:
@@ -218,5 +218,5 @@ Commands::Response ConnectorX::sendCommand(Commands::Command command,
 
   _i2c->Transaction(sendBuf, sendLen + 1, (uint8_t *)&response.responseData,
                     recSize);
-  return responseData;
+  return response;
 }

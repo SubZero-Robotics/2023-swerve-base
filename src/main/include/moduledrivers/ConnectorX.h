@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "Constants.h"
-#include "utils/Logging.h"
+#include "utils/Logger.h"
 
 namespace ConnectorX {
 struct Message {
@@ -19,6 +19,20 @@ struct Message {
   uint16_t teamNumber;
 };
 namespace Commands {
+    struct LedConfiguration {
+  uint16_t count;
+  uint8_t brightness;
+};
+
+struct Configuration {
+  int8_t valid;
+  uint16_t teamNumber;
+  // Send messages to 2 other teams
+  uint16_t initialTeams[2];
+  uint8_t i2c0Addr;
+  LedConfiguration led0;
+  LedConfiguration led1;
+};
 enum class CommandType {
   // W
   On = 0,
@@ -152,7 +166,7 @@ struct ResponseRadioLastReceived {
 };
 
 struct ResponseReadConfiguration {
-  Configuration config;
+  Commands::Configuration config;
 };
 
 union ResponseData {
@@ -193,20 +207,6 @@ enum class AnalogPort { A0 = 0, A1 = 1, A2 = 2 };
 
 enum class LedPort { P0 = 0, P1 = 1 };
 
-struct LedConfiguration {
-  uint16_t count;
-  uint8_t brightness;
-};
-
-struct Configuration {
-  int8_t valid;
-  uint16_t teamNumber;
-  // Send messages to 2 other teams
-  uint16_t initialTeams[2];
-  uint8_t i2c0Addr;
-  LedConfiguration led0;
-  LedConfiguration led1;
-};
 class ConnectorX : public frc2::SubsystemBase {
 public:
   ConnectorX(uint8_t slaveAddress, frc::I2C::Port port = frc::I2C::kMXP);
@@ -312,14 +312,14 @@ public:
    *
    * @param config
    */
-  void setConfig(Configuration config);
+  void setConfig(Commands::Configuration config);
 
   /**
    * @brief Read the config stored in EEPROM
    *
    * @return Configuration
    */
-  Configuration readConfig();
+  Commands::Configuration readConfig();
 
   /**
    * @brief Send a message via the radio; set team to 0xFFFF to broadcast to all

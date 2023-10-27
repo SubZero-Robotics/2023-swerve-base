@@ -142,3 +142,5 @@ namespace OIConstants {
 constexpr int kDriverControllerPort = 0;
 constexpr double kDriveDeadband = 0.05;
 }  // namespace OIConstants
+
+constexpr uint8_t kLedAddress = 0x05;

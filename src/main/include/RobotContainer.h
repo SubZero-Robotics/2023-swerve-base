@@ -16,6 +16,7 @@
 
 #include "Constants.h"
 #include "subsystems/DriveSubsystem.h"
+#include "moduledrivers/ConnectorX.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -41,6 +42,8 @@ class RobotContainer {
 
   // The chooser for the autonomous routines
   frc::SendableChooser<frc2::Command*> m_chooser;
+
+  ConnectorX::ConnectorX m_leds{kLedAddress};
 
   void ConfigureButtonBindings();
 };
