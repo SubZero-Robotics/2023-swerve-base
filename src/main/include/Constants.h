@@ -142,3 +142,16 @@ namespace OIConstants {
 constexpr int kDriverControllerPort = 0;
 constexpr double kDriveDeadband = 0.05;
 }  // namespace OIConstants
+
+// TODO: actual values for these constants
+namespace WristConstants {
+    constexpr double kWristSpeed = 0.05;
+    constexpr int kWristRotationMotorID = 22;
+    constexpr double kWristSetP = 1;
+    constexpr double kWristSetP = 1;
+    constexpr double kWristSetP = 1;
+    constexpr double kWristDegreeLimit = 90;
+    constexpr double kWristStepSize = 90;
+    constexpr int kWristLimitSwitchPort = 1;
+    constexpr double kWristHomingSpeed = 0.05;
+} // namespace WristCostants
