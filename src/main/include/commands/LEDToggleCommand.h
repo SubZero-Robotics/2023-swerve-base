@@ -8,6 +8,7 @@
 #include <frc2/command/CommandHelper.h>
 
 #include "moduledrivers/ConnectorX.h"
+#include "ColorConstants.h"
 
 /**
  * An example command that uses an example subsystem.
@@ -28,12 +29,12 @@ class LEDToggle : public frc2::CommandHelper<frc2::CommandBase, LEDToggle> {
     }
 
     void Execute() override {
-        if (m_leds->compareColor(&m_leds->getCurrentColor(ConnectorX::LedPort::P1), (ConnectorX::Commands::CommandColor*)&kPurpleColor)) {
-            m_leds->setColor(ConnectorX::LedPort::P1, kYellowColor);
+        if (m_leds->compareColor(m_leds->getCurrentColor(ConnectorX::LedPort::P0), kPurpleColor)) {
+            m_leds->setColor(ConnectorX::LedPort::P0, kYellowColor);
         } else {
-            m_leds->setColor(ConnectorX::LedPort::P1, kPurpleColor);
+            m_leds->setColor(ConnectorX::LedPort::P0, kPurpleColor);
         }
-        m_leds->setPattern(ConnectorX::LedPort::P1, ConnectorX::PatternType::SetAll, true);
+        m_leds->setPattern(ConnectorX::LedPort::P0, ConnectorX::PatternType::SetAll, true);
 
         isFinished = true;
     }

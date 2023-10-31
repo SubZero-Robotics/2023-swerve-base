@@ -140,7 +140,7 @@ extern const frc::TrapezoidProfile<units::radians>::Constraints
 
 namespace OIConstants {
 constexpr int kDriverControllerPort = 0;
-constexpr int kOperatorControllerPort = 0;
+constexpr int kOperatorControllerPort = 1;
 constexpr double kDriveDeadband = 0.05;
 }  // namespace OIConstants
 
@@ -148,11 +148,8 @@ constexpr uint8_t kLedAddress = 0x02;
 
 // Motor IDs
 namespace CANSparkMaxConstants {
-constexpr int kExtensionMotorID = 50;
-constexpr int kArmRotationLeadMotorID = 1;
-constexpr int kArmRotationFollowMotorID = 3;
-constexpr int kIntakeSpinnyBoyID = 17;
-constexpr int kWristRotationMotorID = 15;
+constexpr int kIntakeSpinnyBoyID = 20;
+constexpr int kWristRotationMotorID = 22;
 }  // namespace CANSparkMaxConstants
 
 namespace ArmConstants {
@@ -204,9 +201,9 @@ constexpr double kIntakeSpeed = 1.0;
 constexpr double kOuttakeSpeed = 0.33;
 
 // Wrist Constants
-constexpr int kWristLimitSwitchPort = 3;
+constexpr int kWristLimitSwitchPort = 0;
 constexpr int kWristGearRatio = 125;
-constexpr auto kWristDegreeLimit = 120.0;
+constexpr auto kWristDegreeLimit = 144;
 constexpr double kWristStepSize = 4;
 
 constexpr double kWristSetP = 0.0018386;

@@ -25,6 +25,8 @@
 #include "commands/Funni.h"
 #include "commands/LEDToggleCommand.h"
 #include "commands/RotateWristCommand.h"
+#include "commands/IntakeInCommand.h"
+#include "commands/IntakeOutCommand.h"
 
 using namespace DriveConstants;
 
@@ -56,15 +58,29 @@ RobotContainer::RobotContainer() {
 
 void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController,
-                       frc::XboxController::Button::kRightBumper)
+                       frc::XboxController::Button::kY)
       .WhileTrue(new frc2::RunCommand([this] { m_drive.SetX(); }, {&m_drive}));
 
-  frc2::JoystickButton(&m_driverController,
-                       frc::XboxController::Button::kX).WhileTrue(
-        GamepieceFunni(&m_leds).ToPtr());
+//   frc2::JoystickButton(&m_driverController,
+//                        frc::XboxController::Button::kX).WhileTrue(
+//         GamepieceFunni(&m_leds).ToPtr());
 
     m_wrist->SetDefaultCommand(
-        RotateWrist(m_wrist.get(), [this] { return m_operatorController.GetRightY(); }));
+        RotateWrist(m_wrist.get(), [this] { 
+            return (m_driverController.GetRightTriggerAxis() > 0.05 ? 
+                m_driverController.GetRightTriggerAxis() : 
+                -m_driverController.GetLeftTriggerAxis()
+            );
+        }));
+    
+    frc2::JoystickButton(&m_driverController,
+                       frc::XboxController::Button::kRightBumper).WhileTrue(IntakeIn(&m_intake).ToPtr());
+
+    frc2::JoystickButton(&m_driverController,
+                       frc::XboxController::Button::kLeftBumper).WhileTrue(IntakeOut(&m_intake).ToPtr());
+
+    frc2::JoystickButton(&m_driverController,
+                       frc::XboxController::Button::kX).OnTrue(LEDToggle(&m_leds).ToPtr());
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {

@@ -104,7 +104,6 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
           _isMovingToPosition(false),
           _targetPosition(0),
           _prefix(prefix),
-          (ansiPrefixModifiers),
           _log(log),
           _minLimitSwitch(minSwitch),
           _maxLimitSwitch(maxSwitch) {
@@ -399,7 +398,6 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
     bool _isMovingToPosition = false;
     double _targetPosition = 0.0;
     std::string _prefix;
-    std::string ;
     bool _log;
 
    private:

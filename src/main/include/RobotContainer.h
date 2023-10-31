@@ -36,7 +36,7 @@ class RobotContainer {
  private:
   // The driver's controller
   frc::XboxController m_driverController{OIConstants::kDriverControllerPort};
-  frc::XboxController m_operatorController{OIConstants::kDriverControllerPort};
+  frc::XboxController m_operatorController{OIConstants::kOperatorControllerPort};
 
   // The robot's subsystems and commands are defined here...
 
@@ -49,6 +49,7 @@ class RobotContainer {
   std::unique_ptr<WristSubsystem> m_wrist;
 
   ConnectorX::ConnectorX m_leds{kLedAddress};
+  IntakeSubsystem m_intake{&m_leds};
 
   void ConfigureButtonBindings();
 };

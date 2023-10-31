@@ -6,20 +6,9 @@
 #include "moduledrivers/ConnectorX.h"
 
 #include "constants.h"
+#include "ColorConstants.h"
 
 using namespace CANSparkMaxConstants;
-
-static const ConnectorX::Commands::CommandColor kYellowColor = {
-    .red = 0xff,
-    .green = 0xff,
-    .blue = 0x00
-};
-static const ConnectorX::Commands::CommandColor kPurpleColor = {
-    .red = 110,
-    .green = 10,
-    .blue = 250
-};
-
 
 class IntakeSubsystem : public frc2::SubsystemBase {
    public:
@@ -44,5 +33,5 @@ class IntakeSubsystem : public frc2::SubsystemBase {
     // Components (e.g. motor controllers and sensors) should generally be
     // declared private and exposed only through public methods.
     ConnectorX::ConnectorX* m_ledSubsystem;
-    rev::CANSparkMax m_intakeSpinnyBoy;
+    rev::CANSparkMax m_intakeSpinnyBoy{CANSparkMaxConstants::kIntakeSpinnyBoyID, rev::CANSparkMaxLowLevel::MotorType::kBrushless};
 };

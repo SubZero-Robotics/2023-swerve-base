@@ -304,8 +304,12 @@ public:
     setColor(port, color.red, color.green, color.blue);
   }
 
-  bool compareColor(Commands::CommandColor *C1, Commands::CommandColor *C2) {
-    return memcmp(C1, C2, sizeof(*C2));
+  bool compareColor(Commands::CommandColor C1, Commands::CommandColor C2) {
+
+    return !((C1.red - C2.red) |
+            (C1.green - C2.green) |
+              (C1.blue - C2.blue));
+    // return 1-memcmp(&C1, &C2, sizeof(C2));
   }
 
   /**
