@@ -23,14 +23,19 @@
 #include "Constants.h"
 #include "subsystems/DriveSubsystem.h"
 #include "commands/Funni.h"
+#include "commands/LEDToggleCommand.h"
+#include "commands/RotateWristCommand.h"
 
 using namespace DriveConstants;
 
 RobotContainer::RobotContainer() {
   // Initialize all of your commands and subsystems here
 
+  m_wrist = std::make_unique<WristSubsystem>();
+
   // Configure the button bindings
   ConfigureButtonBindings();
+
 
   // Set up default drive command
   // The left stick controls translation of the robot.
@@ -57,6 +62,9 @@ void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController,
                        frc::XboxController::Button::kX).WhileTrue(
         GamepieceFunni(&m_leds).ToPtr());
+
+    m_wrist->SetDefaultCommand(
+        RotateWrist(m_wrist.get(), [this] { return m_operatorController.GetRightY(); }));
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {

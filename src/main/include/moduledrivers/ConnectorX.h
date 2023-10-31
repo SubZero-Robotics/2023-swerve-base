@@ -300,6 +300,14 @@ public:
    */
   bool setColor(LedPort port, uint32_t color);
 
+  void setColor(LedPort port, Commands::CommandColor color) {
+    setColor(port, color.red, color.green, color.blue);
+  }
+
+  bool compareColor(Commands::CommandColor *C1, Commands::CommandColor *C2) {
+    return memcmp(C1, C2, sizeof(*C2));
+  }
+
   /**
    * @brief Read if pattern is done running
    *
@@ -328,6 +336,10 @@ public:
    */
   void sendRadioMessage(Message message);
 
+  inline Commands::CommandColor getCurrentColor(LedPort port) {
+    return m_currentColors[(uint8_t)port];
+  }
+
   /**
    * @brief Read the last received message
    *
@@ -346,5 +358,6 @@ private:
   LedPort _currentLedPort = LedPort::P0;
   Commands::CommandType _lastCommand;
   PatternType _lastPattern[2];
+  Commands::CommandColor m_currentColors[2] = { {0}, {0} };
 };
 } // namespace ConnectorX
