@@ -197,7 +197,7 @@ constexpr double kExtenderHomingSpeed = .66;
 constexpr double kWristHomingSpeed = .33;
 
 // Intake Constants
-constexpr double kIntakeSpeed = 1.0;
+constexpr double kIntakeSpeed = 0.8;
 constexpr double kOuttakeSpeed = 0.33;
 
 // Wrist Constants

@@ -58,25 +58,18 @@ RobotContainer::RobotContainer() {
 
 void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController,
-                       frc::XboxController::Button::kY)
+                       frc::XboxController::Button::kRightBumper)
       .WhileTrue(new frc2::RunCommand([this] { m_drive.SetX(); }, {&m_drive}));
 
-//   frc2::JoystickButton(&m_driverController,
-//                        frc::XboxController::Button::kX).WhileTrue(
-//         GamepieceFunni(&m_leds).ToPtr());
-
     m_wrist->SetDefaultCommand(
-        RotateWrist(m_wrist.get(), [this] { 
-            return (m_driverController.GetRightTriggerAxis() > 0.05 ? 
-                m_driverController.GetRightTriggerAxis() : 
-                -m_driverController.GetLeftTriggerAxis()
-            );
+        RotateWrist(m_wrist.get(), [this] {
+            return -m_operatorController.GetRightY();
         }));
     
-    frc2::JoystickButton(&m_driverController,
+    frc2::JoystickButton(&m_operatorController,
                        frc::XboxController::Button::kRightBumper).WhileTrue(IntakeIn(&m_intake).ToPtr());
 
-    frc2::JoystickButton(&m_driverController,
+    frc2::JoystickButton(&m_operatorController,
                        frc::XboxController::Button::kLeftBumper).WhileTrue(IntakeOut(&m_intake).ToPtr());
 
     frc2::JoystickButton(&m_driverController,
@@ -94,8 +87,8 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
   auto exampleTrajectory = frc::TrajectoryGenerator::GenerateTrajectory(
       // Start at the origin facing the +X direction
       frc::Pose2d{0_m, 0_m, 0_deg},
-      // Pass through these two interior waypoints, making an 's' curve path
-      {frc::Translation2d{1_m, 1_m}, frc::Translation2d{2_m, -1_m}},
+      // Make these be 0m so it drives a straight line
+      {frc::Translation2d{0_m, 0_m}, frc::Translation2d{0_m, 0_m}},
       // End 3 meters straight ahead of where we started, facing forward
       frc::Pose2d{3_m, 0_m, 0_deg},
       // Pass the config
@@ -125,7 +118,6 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
 
   // no auto
   return new frc2::SequentialCommandGroup(
-      std::move(swerveControllerCommand),
       frc2::InstantCommand(
           [this]() { m_drive.Drive(0_mps, 0_mps, 0_rad_per_s, false, false, kLoopTime); },
           {}));
