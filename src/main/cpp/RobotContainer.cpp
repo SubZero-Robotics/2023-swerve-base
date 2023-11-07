@@ -88,7 +88,7 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
       // Start at the origin facing the +X direction
       frc::Pose2d{0_m, 0_m, 0_deg},
       // Make these be 0m so it drives a straight line
-      {frc::Translation2d{1_m, 1_m}, frc::Translation2d{2_m, -1_m}},
+      {frc::Translation2d{0_m, 0_m}, frc::Translation2d{0_m, 0_m}},
       // End 3 meters straight ahead of where we started, facing forward
       frc::Pose2d{3_m, 0_m, 0_deg},
       // Pass the config
