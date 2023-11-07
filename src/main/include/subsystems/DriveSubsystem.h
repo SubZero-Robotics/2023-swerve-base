@@ -137,16 +137,20 @@ class DriveSubsystem : public frc2::SubsystemBase {
   // Components (e.g. motor controllers and sensors) should generally be
   // declared private and exposed only through public methods.
 
+    void logMotorState(MAXSwerveModule &motor, std::string key);
+
   MAXSwerveModule m_frontLeft;
   MAXSwerveModule m_rearLeft;
   MAXSwerveModule m_frontRight;
   MAXSwerveModule m_rearRight;
 
+  uint8_t logCounter = 0;
+
   // The gyro sensor
   AHRS m_gyro{frc::SPI::Port::kMXP};
 
   // time last loop took, "deltatime"
-  units::second_t driveLoopTime;
+  units::second_t driveLoopTime = 0.022_s;
 
   // Slew rate filter variables for controlling lateral acceleration
   double m_currentRotation = 0.0;

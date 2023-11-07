@@ -117,7 +117,7 @@ class WristSubsystem
         .maxDistance = ArmConstants::kWristDegreeLimit,
         .distancePerRevolution = 360.0,
         .stepSize = ArmConstants::kWristStepSize,
-        .motorMultiplier = -1.0,
+        .motorMultiplier = 1.0,
         .minLimitSwitchPort = ArmConstants::kWristLimitSwitchPort,
         .maxLimitSwitchPort = BaseSingleAxisSubsystem::UNUSED_DIO_PORT,
         .defaultMovementSpeed = -ArmConstants::kWristHomingSpeed};
