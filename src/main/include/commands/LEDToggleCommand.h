@@ -24,7 +24,7 @@ class LEDToggle : public frc2::CommandHelper<frc2::CommandBase, LEDToggle> {
      *
      * @param subsystem The subsystem used by this command.
      */
-    explicit LEDToggle(ConnectorX::ConnectorX *leds)
+    explicit LEDToggle(ConnectorX::ConnectorXBoard *leds)
         : m_leds{leds}, isFinished{false} {
     }
 
@@ -42,6 +42,6 @@ class LEDToggle : public frc2::CommandHelper<frc2::CommandBase, LEDToggle> {
     bool IsFinished() override { return isFinished; }
 
    private:
-    ConnectorX::ConnectorX* m_leds;
+    ConnectorX::ConnectorXBoard* m_leds;
     bool isFinished = false;
 };

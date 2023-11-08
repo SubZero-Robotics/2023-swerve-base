@@ -48,7 +48,7 @@ class RobotContainer {
 
   std::unique_ptr<WristSubsystem> m_wrist;
 
-  ConnectorX::ConnectorX m_leds{kLedAddress};
+  ConnectorX::ConnectorXBoard m_leds{kLedAddress};
   IntakeSubsystem m_intake{&m_leds};
 
   void ConfigureButtonBindings();

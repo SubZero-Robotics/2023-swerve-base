@@ -207,9 +207,9 @@ enum class AnalogPort { A0 = 0, A1 = 1, A2 = 2 };
 
 enum class LedPort { P0 = 0, P1 = 1 };
 
-class ConnectorX : public frc2::SubsystemBase {
+class ConnectorXBoard : public frc2::SubsystemBase {
 public:
-  ConnectorX(uint8_t slaveAddress, frc::I2C::Port port = frc::I2C::kMXP);
+  ConnectorXBoard(uint8_t slaveAddress, frc::I2C::Port port = frc::I2C::kMXP);
 
   /**
    * @brief Start communication with the controller
@@ -298,7 +298,7 @@ public:
    *
    * @param color Color data in the form of 0x00RRGGBB
    */
-  bool setColor(LedPort port, uint32_t color);
+  void setColor(LedPort port, uint32_t color);
 
   void setColor(LedPort port, Commands::CommandColor color) {
     setColor(port, color.red, color.green, color.blue);

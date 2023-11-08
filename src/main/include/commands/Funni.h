@@ -14,7 +14,7 @@ class GamepieceFunni
      *
      * @param subsystem The subsystem used by this command.
      */
-    explicit GamepieceFunni(ConnectorX::ConnectorX *leds)
+    explicit GamepieceFunni(ConnectorX::ConnectorXBoard *leds)
         : m_leds{leds}, isFinished{false} {
         // Register that this command requires the subsystem.
     }
@@ -34,7 +34,7 @@ class GamepieceFunni
     }
 
    private:
-    ConnectorX::ConnectorX* m_leds;
+    ConnectorX::ConnectorXBoard* m_leds;
     uint8_t state = 0;
     bool isFinished = false;
 };

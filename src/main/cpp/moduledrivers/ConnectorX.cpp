@@ -2,16 +2,16 @@
 
 using namespace ConnectorX;
 
-ConnectorX::ConnectorX::ConnectorX(uint8_t slaveAddress, frc::I2C::Port port)
+ConnectorX::ConnectorXBoard::ConnectorXBoard(uint8_t slaveAddress, frc::I2C::Port port)
     : _i2c(std::make_unique<frc::I2C>(port, slaveAddress)),
       _slaveAddress(slaveAddress) {
   setOff(LedPort::P0);
   setOff(LedPort::P1);
 }
 
-bool ConnectorX::ConnectorX::initialize() { return !_i2c->AddressOnly(); }
+bool ConnectorX::ConnectorXBoard::initialize() { return !_i2c->AddressOnly(); }
 
-void ConnectorX::ConnectorX::configureDigitalPin(DigitalPort port, PinMode mode) {
+void ConnectorX::ConnectorXBoard::configureDigitalPin(DigitalPort port, PinMode mode) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::DigitalSetup;
   cmd.commandData.commandDigitalSetup = {.port = (uint8_t)port,
@@ -20,7 +20,7 @@ void ConnectorX::ConnectorX::configureDigitalPin(DigitalPort port, PinMode mode)
   sendCommand(cmd);
 }
 
-void ConnectorX::ConnectorX::writeDigitalPin(DigitalPort port, bool value) {
+void ConnectorX::ConnectorXBoard::writeDigitalPin(DigitalPort port, bool value) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::DigitalWrite;
   cmd.commandData.commandDigitalWrite = {.port = (uint8_t)port,
@@ -29,7 +29,7 @@ void ConnectorX::ConnectorX::writeDigitalPin(DigitalPort port, bool value) {
   sendCommand(cmd);
 }
 
-bool ConnectorX::ConnectorX::readDigitalPin(DigitalPort port) {
+bool ConnectorX::ConnectorXBoard::readDigitalPin(DigitalPort port) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::DigitalRead;
   cmd.commandData.commandDigitalRead = {.port = (uint8_t)port};
@@ -38,7 +38,7 @@ bool ConnectorX::ConnectorX::readDigitalPin(DigitalPort port) {
   return res.responseData.responseDigitalRead.value;
 }
 
-uint16_t ConnectorX::ConnectorX::readAnalogPin(AnalogPort port) {
+uint16_t ConnectorX::ConnectorXBoard::readAnalogPin(AnalogPort port) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::ReadAnalog;
   cmd.commandData.commandReadAnalog = {.port = (uint8_t)port};
@@ -47,7 +47,7 @@ uint16_t ConnectorX::ConnectorX::readAnalogPin(AnalogPort port) {
   return res.responseData.responseReadAnalog.value;
 }
 
-void ConnectorX::ConnectorX::setLedPort(LedPort port) {
+void ConnectorX::ConnectorXBoard::setLedPort(LedPort port) {
   if (port != _currentLedPort) {
     _currentLedPort = port;
     Commands::Command cmd;
@@ -57,7 +57,7 @@ void ConnectorX::ConnectorX::setLedPort(LedPort port) {
   }
 }
 
-void ConnectorX::ConnectorX::setOn(LedPort port) {
+void ConnectorX::ConnectorXBoard::setOn(LedPort port) {
   setLedPort(port);
 
   Commands::Command cmd;
@@ -66,7 +66,7 @@ void ConnectorX::ConnectorX::setOn(LedPort port) {
   sendCommand(cmd);
 }
 
-void ConnectorX::ConnectorX::setOff(LedPort port) {
+void ConnectorX::ConnectorXBoard::setOff(LedPort port) {
   setLedPort(port);
 
   Commands::Command cmd;
@@ -75,7 +75,7 @@ void ConnectorX::ConnectorX::setOff(LedPort port) {
   sendCommand(cmd);
 }
 
-void ConnectorX::ConnectorX::setPattern(LedPort port, PatternType pattern,
+void ConnectorX::ConnectorXBoard::setPattern(LedPort port, PatternType pattern,
                             bool oneShot, int16_t delay) {
   setLedPort(port);
 
@@ -87,7 +87,7 @@ void ConnectorX::ConnectorX::setPattern(LedPort port, PatternType pattern,
   sendCommand(cmd);
 }
 
-void ConnectorX::ConnectorX::setColor(LedPort port, uint8_t red, uint8_t green,
+void ConnectorX::ConnectorXBoard::setColor(LedPort port, uint8_t red, uint8_t green,
                           uint8_t blue) {
   setLedPort(port);
 
@@ -106,13 +106,13 @@ void ConnectorX::ConnectorX::setColor(LedPort port, uint8_t red, uint8_t green,
   sendCommand(cmd);
 }
 
-bool ConnectorX::ConnectorX::setColor(LedPort port, uint32_t color) {
+void ConnectorX::ConnectorXBoard::setColor(LedPort port, uint32_t color) {
   setLedPort(port);
 
   setColor(port, (color >> 16) & 255, (color >> 8) & 255, color & 255);
 }
 
-bool ConnectorX::ConnectorX::getPatternDone(LedPort port) {
+bool ConnectorX::ConnectorXBoard::getPatternDone(LedPort port) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::ReadPatternDone;
   cmd.commandData.commandReadPatternDone = {};
@@ -121,7 +121,7 @@ bool ConnectorX::ConnectorX::getPatternDone(LedPort port) {
   return res.responseData.responsePatternDone.done;
 }
 
-void ConnectorX::ConnectorX::setConfig(Commands::Configuration config) {
+void ConnectorX::ConnectorXBoard::setConfig(Commands::Configuration config) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::SetConfig;
   cmd.commandData.commandSetConfig.config = config;
@@ -129,7 +129,7 @@ void ConnectorX::ConnectorX::setConfig(Commands::Configuration config) {
   sendCommand(cmd);
 }
 
-Commands::Configuration ConnectorX::ConnectorX::readConfig() {
+Commands::Configuration ConnectorX::ConnectorXBoard::readConfig() {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::ReadConfig;
   cmd.commandData.commandReadConfig = {};
@@ -138,7 +138,7 @@ Commands::Configuration ConnectorX::ConnectorX::readConfig() {
   return res.responseData.responseReadConfiguration.config;
 }
 
-void ConnectorX::ConnectorX::sendRadioMessage(Message message) {
+void ConnectorX::ConnectorXBoard::sendRadioMessage(Message message) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::RadioSend;
   cmd.commandData.commandRadioSend.msg = message;
@@ -146,7 +146,7 @@ void ConnectorX::ConnectorX::sendRadioMessage(Message message) {
   sendCommand(cmd);
 }
 
-Message ConnectorX::ConnectorX::getLatestRadioMessage() {
+Message ConnectorX::ConnectorXBoard::getLatestRadioMessage() {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::RadioGetLatestReceived;
   cmd.commandData.commandRadioGetLatestReceived = {};
@@ -155,7 +155,7 @@ Message ConnectorX::ConnectorX::getLatestRadioMessage() {
   return res.responseData.responseRadioLastReceived.msg;
 }
 
-Commands::Response ConnectorX::ConnectorX::sendCommand(Commands::Command command,
+Commands::Response ConnectorX::ConnectorXBoard::sendCommand(Commands::Command command,
                                            bool expectResponse) {
   using namespace Commands;
 

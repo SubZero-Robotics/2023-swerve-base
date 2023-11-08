@@ -1,7 +1,7 @@
 #include <subsystems/IntakeSubsystem.h>
 #include "moduledrivers/ConnectorX.h"
 
-IntakeSubsystem::IntakeSubsystem(ConnectorX::ConnectorX* subsystem)
+IntakeSubsystem::IntakeSubsystem(ConnectorX::ConnectorXBoard* subsystem)
     : m_ledSubsystem(subsystem) {}
 
 void IntakeSubsystem::Periodic() {}
