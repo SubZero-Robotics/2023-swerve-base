@@ -75,7 +75,7 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
 
   double currentTime = wpi::Now() * 1e-6;
   double elapsedTime = currentTime - m_prevTime;
-  driveLoopTime = units::second_t{elapsedTime};
+  periodSeconds = units::second_t(elapsedTime);
 
   if (rateLimit) {
     // Convert XY to polar for rate limiting
@@ -96,6 +96,8 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
 
     double angleDif = SwerveUtils::AngleDifference(inputTranslationDir,
                                                    m_currentTranslationDir);
+
+    driveLoopTime = units::second_t{elapsedTime};
 
     if (angleDif < 0.45 * std::numbers::pi) {
       m_currentTranslationDir = SwerveUtils::StepTowardsCircular(
@@ -147,7 +149,7 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
                     frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}))
               : frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered,
                                    rotDelivered},
-          (driveLoopTime * 4)));
+          (periodSeconds * 4)));
 
   kDriveKinematics.DesaturateWheelSpeeds(&states, DriveConstants::kMaxSpeed);
 
@@ -183,7 +185,7 @@ void DriveSubsystem::SetX() {
 void DriveSubsystem::logMotorState(MAXSwerveModule &motor, std::string key) {
   Logging::logToSmartDashboard(key,
                                std::to_string(motor.GetState().speed.value()),
-                               Logging::Level::INFO);
+                               Logging::Level::INFO, Logging::Type::Number);
 }
 
 void DriveSubsystem::SetModuleStates(
