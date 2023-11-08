@@ -245,7 +245,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
                     Logging::Level::INFO);
             Logging::logToSmartDashboard(_prefix + " TargetPos",
                                          std::to_string(_targetPosition),
-                                         Logging::Level::INFO);
+                                         Logging::Level::INFO, Logging::Type::Number);
 
             if (_controller.AtSetpoint()) {
                 Logging::logToStdOut(_prefix, "REACHED GOAL",

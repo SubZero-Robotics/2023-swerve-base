@@ -43,15 +43,15 @@ void DriveSubsystem::Periodic() {
 
   if (!logCounter++) {
     Logging::logToSmartDashboard(
-        "Gyro Angle", std::to_string(m_gyro.GetAngle()), Logging::Level::INFO);
+        "Gyro Angle", std::to_string(m_gyro.GetAngle()), Logging::Level::INFO, Logging::Type::Number);
     Logging::logToSmartDashboard(
         "Rear Left Position",
         std::to_string(m_rearLeft.GetPosition().distance.value()),
-        Logging::Level::INFO);
+        Logging::Level::INFO, Logging::Type::Number);
     Logging::logToSmartDashboard(
         "Rear Right Position",
         std::to_string(m_rearRight.GetPosition().distance.value()),
-        Logging::Level::INFO);
+        Logging::Level::INFO, Logging::Type::Number);
   }
 
   logCounter %= 10;
@@ -67,11 +67,11 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
   double ySpeedCommanded;
 
   Logging::logToSmartDashboard("xSpeed", std::to_string((double)xSpeed),
-                               Logging::Level::INFO);
+                               Logging::Level::INFO, Logging::Type::Number);
   Logging::logToSmartDashboard("ySpeed", std::to_string((double)ySpeed),
-                               Logging::Level::INFO);
+                               Logging::Level::INFO, Logging::Type::Number);
   Logging::logToSmartDashboard("Rotation", std::to_string((double)rot),
-                               Logging::Level::INFO);
+                               Logging::Level::INFO, Logging::Type::Number);
 
   double currentTime = wpi::Now() * 1e-6;
   double elapsedTime = currentTime - m_prevTime;
