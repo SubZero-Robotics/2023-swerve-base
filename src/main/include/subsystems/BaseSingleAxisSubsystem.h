@@ -80,7 +80,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
      */
     struct SingleAxisConfig {
         AxisType type;
-        frc2::PIDController pid;
+        frc::PIDController pid;
         double minDistance;
         double maxDistance;
         double distancePerRevolution;
@@ -393,7 +393,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
     Motor &_motor;
     Encoder &_enc;
     SingleAxisConfig &_config;
-    frc2::PIDController _controller;
+    frc::PIDController _controller;
     bool _isHoming = false;
     bool _isMovingToPosition = false;
     double _targetPosition = 0.0;

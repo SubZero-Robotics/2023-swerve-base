@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <frc2/command/CommandBase.h>
+#include <frc2/command/Command.h>
 #include <frc2/command/CommandHelper.h>
 
 #include "moduledrivers/ConnectorX.h"
@@ -17,7 +17,7 @@
  * directly; this is crucially important, or else the decorator functions in
  * Command will *not* work!
  */
-class LEDToggle : public frc2::CommandHelper<frc2::CommandBase, LEDToggle> {
+class LEDToggle : public frc2::CommandHelper<frc2::Command, LEDToggle> {
    public:
     /**
      * Creates a new LEDYellow.

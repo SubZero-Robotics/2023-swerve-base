@@ -1,11 +1,11 @@
 #pragma once
 
-#include <frc2/command/CommandBase.h>
+#include <frc2/command/Command.h>
 #include <frc2/command/CommandHelper.h>
 
 #include "subsystems/IntakeSubsystem.h"
 
-class IntakeOut : public frc2::CommandHelper<frc2::CommandBase, IntakeOut> {
+class IntakeOut : public frc2::CommandHelper<frc2::Command, IntakeOut> {
    public:
     /**
      * Creates a new Intake.

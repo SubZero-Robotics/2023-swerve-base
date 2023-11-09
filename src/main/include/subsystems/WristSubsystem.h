@@ -110,7 +110,7 @@ class WristSubsystem
 
     SingleAxisConfig m_config = {
         .type = BaseSingleAxisSubsystem::AxisType::Rotational,
-        .pid = frc2::PIDController(ArmConstants::kWristSetP,
+        .pid = frc::PIDController(ArmConstants::kWristSetP,
                                    ArmConstants::kWristSetI,
                                    ArmConstants::kWristSetD),
         .minDistance = 0,

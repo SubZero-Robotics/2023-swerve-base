@@ -1,13 +1,13 @@
 #pragma once
 
 #include <frc/Timer.h>
-#include <frc2/command/CommandBase.h>
+#include <frc2/command/Command.h>
 #include <frc2/command/CommandHelper.h>
 
 #include "moduledrivers/ConnectorX.h"
 
 class GamepieceFunni
-    : public frc2::CommandHelper<frc2::CommandBase, GamepieceFunni> {
+    : public frc2::CommandHelper<frc2::Command, GamepieceFunni> {
    public:
     /**
      * Creates a new Intake.
