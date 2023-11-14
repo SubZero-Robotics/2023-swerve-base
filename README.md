@@ -36,8 +36,6 @@
     - [Pushing commits](#pushing-commits)
     - [Pulling branches](#pulling-branches)
     - [Pull requests](#pull-requests)
-  - [Necessary Hardware](#necessary-hardware)
-  - [Network Map](#network-map-1)
   - [Contact](#contact)
 
 ## About
