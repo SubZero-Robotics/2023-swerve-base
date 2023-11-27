@@ -51,7 +51,7 @@ RobotContainer::RobotContainer() {
                 m_driverController.GetLeftX(), OIConstants::kDriveDeadband)},
             -units::radians_per_second_t{frc::ApplyDeadband(
                 m_driverController.GetRightX(), OIConstants::kDriveDeadband)},
-            true, false, kLoopTime);
+            true, true, kLoopTime);
       },
       {&m_drive}));
 }
