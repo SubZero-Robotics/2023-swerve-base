@@ -7,11 +7,3 @@ using namespace pathplanner;
 using namespace autos;
 
 std::unordered_map<std::string, std::shared_ptr<frc2::Command>> eventMap;
-
-AutoBuilder::configureHolonomic(
-    [this]() { return m_drive.GetPose(); }, // Function to supply current robot pose
-    [this](frc::Pose2d initPose) { m_drive.ResetOdometry(initPose); }, // Function used to reset odometry at the beginning of auto
-    [this]() {return m_drive.getSpee}
-    );
-
-frc2::CommandPtr fullAuto = autoBuilder.fullAuto(pathGroup);

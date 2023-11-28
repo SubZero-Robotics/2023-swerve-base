@@ -15,6 +15,9 @@
 #include "frc/DataLogManager.h"
 #include "utils/SwerveUtils.h"
 
+#include <pathplanner/lib/path/PathPlannerPath.h>
+#include <pathplanner/lib/auto/AutoBuilder.h>
+
 using namespace DriveConstants;
 
 DriveSubsystem::DriveSubsystem()
@@ -33,6 +36,31 @@ DriveSubsystem::DriveSubsystem()
                  frc::Pose2d{}} {
   // put a field2d in NT
   frc::SmartDashboard::PutData("Field", &m_field);
+
+      pathplanner::AutoBuilder::configureHolonomic(
+        [this]() {
+            return GetPose();
+        },
+        [this](frc::Pose2d pose) -> void
+        {
+            ResetOdometry(pose);
+        },
+        [this]() -> frc::ChassisSpeeds
+        {
+            return getSpeed();
+        },
+        [this](frc::ChassisSpeeds speeds) -> void
+        {
+            Drive(speeds);
+        },
+        pathplanner::HolonomicPathFollowerConfig(
+            pathplanner::PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+            pathplanner::PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
+            4.5_mps,                     // Max module speed, in m/s
+            0.4_m,                       // Drive base radius in meters. Distance from robot center to furthest module.
+            pathplanner::ReplanningConfig()           // Default path replanning config. See the API for the options here),
+            ),
+        this);
 }
 
 void DriveSubsystem::Periodic() {
@@ -170,6 +198,15 @@ void DriveSubsystem::Drive(frc::ChassisSpeeds speeds) {
   DriveSubsystem::SetModuleStates(
       kDriveKinematics.ToSwerveModuleStates(speeds));
 }
+
+frc::ChassisSpeeds DriveSubsystem::getSpeed() {
+    auto fl = m_frontLeft.GetState();
+    auto fr = m_frontRight.GetState();
+    auto rl = m_rearLeft.GetState();
+    auto rr = m_rearRight.GetState();
+
+    return kDriveKinematics.ToChassisSpeeds(fl, fr, rl, rr);
+  }
 
 void DriveSubsystem::SetX() {
   m_frontLeft.SetDesiredState(

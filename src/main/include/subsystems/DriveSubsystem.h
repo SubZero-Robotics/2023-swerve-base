@@ -121,6 +121,8 @@ class DriveSubsystem : public frc2::SubsystemBase {
    */
   frc::ChassisSpeeds discretize(frc::ChassisSpeeds continuousSpeeds, units::second_t dt);
 
+  frc::ChassisSpeeds getSpeed();
+
   static void LogSpeeds(wpi::array<frc::SwerveModuleState, 4> desiredStates);
 
   frc::SwerveDriveKinematics<4> kDriveKinematics{
