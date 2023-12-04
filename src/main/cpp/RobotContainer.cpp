@@ -80,5 +80,5 @@ void RobotContainer::ConfigureButtonBindings() {
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
-    return pathplanner::PathPlannerAuto(AutoConstants::kExampleAutoName).ToPtr();
+    return pathplanner::PathPlannerAuto("Leave COM").ToPtr();
 }

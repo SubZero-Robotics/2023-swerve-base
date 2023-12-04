@@ -3,7 +3,6 @@ plugins {
     id "google-test-test-suite"
     id "edu.wpi.first.GradleRIO" version "2024.1.1-beta-2"
 }
-
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
 deploy {
