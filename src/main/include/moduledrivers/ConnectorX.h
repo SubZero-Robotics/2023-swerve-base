@@ -5,6 +5,7 @@
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/InstantCommand.h>
 #include <frc2/command/SubsystemBase.h>
+#include <frc/util/Color8Bit.h>
 
 #include <memory>
 
@@ -19,7 +20,7 @@ struct Message {
   uint16_t teamNumber;
 };
 namespace Commands {
-    struct LedConfiguration {
+struct LedConfiguration {
   uint16_t count;
   uint8_t brightness;
 };
@@ -181,7 +182,7 @@ struct Response {
   CommandType commandType;
   ResponseData responseData;
 };
-} // namespace Commands
+}  // namespace Commands
 enum class PatternType {
   None = 0,
   SetAll = 1,
@@ -208,7 +209,7 @@ enum class AnalogPort { A0 = 0, A1 = 1, A2 = 2 };
 enum class LedPort { P0 = 0, P1 = 1 };
 
 class ConnectorXBoard : public frc2::SubsystemBase {
-public:
+ public:
   ConnectorXBoard(uint8_t slaveAddress, frc::I2C::Port port = frc::I2C::kMXP);
 
   /**
@@ -293,6 +294,13 @@ public:
    *
    */
   void setColor(LedPort port, uint8_t red, uint8_t green, uint8_t blue);
+
+  /**
+   * @brief Set the color using frc::Color8Bit
+  */
+  void setColor(LedPort port, frc::Color8Bit color) {
+    setColor(port, color.red, color.green, color.blue);
+  };
   /**
    * @brief Set the color; must also call a pattern to see it
    *
@@ -300,16 +308,8 @@ public:
    */
   void setColor(LedPort port, uint32_t color);
 
-  void setColor(LedPort port, Commands::CommandColor color) {
-    setColor(port, color.red, color.green, color.blue);
-  }
-
-  bool compareColor(Commands::CommandColor C1, Commands::CommandColor C2) {
-
-    return !((C1.red - C2.red) |
-            (C1.green - C2.green) |
-              (C1.blue - C2.blue));
-    // return 1-memcmp(&C1, &C2, sizeof(C2));
+  bool compareColor(frc::Color8Bit C1, frc::Color8Bit C2) {
+    return ((C1.red == C2.red) && (C1.blue = C2.blue) && (C1.green == C2.green));
   }
 
   /**
@@ -340,7 +340,7 @@ public:
    */
   void sendRadioMessage(Message message);
 
-  inline Commands::CommandColor getCurrentColor(LedPort port) {
+  inline frc::Color8Bit getCurrentColor(LedPort port) {
     return m_currentColors[(uint8_t)port];
   }
 
@@ -351,7 +351,7 @@ public:
    */
   Message getLatestRadioMessage();
 
-private:
+ private:
   Commands::Response sendCommand(Commands::Command command,
                                  bool expectResponse = false);
 
@@ -362,6 +362,6 @@ private:
   LedPort _currentLedPort = LedPort::P0;
   Commands::CommandType _lastCommand;
   PatternType _lastPattern[2];
-  Commands::CommandColor m_currentColors[2] = { {0}, {0} };
+  frc::Color8Bit m_currentColors[2] = { {0, 0, 0}, {0, 0, 0}};
 };
-} // namespace ConnectorX
+}  // namespace ConnectorX

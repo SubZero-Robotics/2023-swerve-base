@@ -97,11 +97,9 @@ void ConnectorX::ConnectorXBoard::setColor(LedPort port, uint8_t red, uint8_t gr
   cmd.commandData.commandColor.green = green;
   cmd.commandData.commandColor.blue = blue;
 
-  m_currentColors[(uint8_t)port] = {
-    .red = red,
-    .green = green,
-    .blue = blue
-  };
+  m_currentColors[(uint8_t)port].red = cmd.commandData.commandColor.red;
+  m_currentColors[(uint8_t)port].green = cmd.commandData.commandColor.green;
+  m_currentColors[(uint8_t)port].blue = cmd.commandData.commandColor.blue;
 
   sendCommand(cmd);
 }
