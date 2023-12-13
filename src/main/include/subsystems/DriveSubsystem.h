@@ -16,7 +16,7 @@
 
 #include "Constants.h"
 #include "MAXSwerveModule.h"
-#include "utils/Logger.h"
+#include "utils/ConsoleLogger.h"
 
 class DriveSubsystem : public frc2::SubsystemBase {
  public:
@@ -166,6 +166,9 @@ class DriveSubsystem : public frc2::SubsystemBase {
   // Odometry class for tracking robot pose
   // 4 defines the number of modules
   frc::SwerveDriveOdometry<4> m_odometry;
+
+  // wrapper of stdout with formatting
+  ConsoleLogger m_consoleLogger;
 
   // Pose viewing
   frc::Field2d m_field;

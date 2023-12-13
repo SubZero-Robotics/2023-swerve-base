@@ -10,7 +10,6 @@
 #include <memory>
 
 #include "Constants.h"
-#include "utils/Logger.h"
 
 namespace ConnectorX {
 struct Message {
