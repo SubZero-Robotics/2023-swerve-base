@@ -158,7 +158,7 @@ void DriveSubsystem::SetX() {
 }
 
 void DriveSubsystem::logMotorState(MAXSwerveModule &motor, std::string key) {
-  m_consoleLogger.logInfo(key, std::to_string(motor.GetState().speed.value()));
+  consoleLogger.logInfo(key, motor.GetState().speed.value());
 }
 
 void DriveSubsystem::SetModuleStates(

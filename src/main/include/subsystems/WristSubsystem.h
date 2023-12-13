@@ -3,7 +3,6 @@
 #include "Constants.h"
 #include "rev/CANSparkMax.h"
 #include "subsystems/BaseSingleAxisSubsystem.h"
-#include "utils/ConsoleLogger.h"
 
 class WristSubsystem
     : public BaseSingleAxisSubsystem<rev::CANSparkMax,
@@ -22,7 +21,7 @@ class WristSubsystem
     // Wrist has zero offset set in SparkMax
     void ResetEncoder() override {
         if (_log)
-            m_consoleLogger.logInfo(_prefix, "RESET POSITION");
+            consoleLogger.logInfo(_prefix, "RESET POSITION");
         // m_encoder.SetZeroOffset(0);
     }
 
@@ -31,14 +30,10 @@ class WristSubsystem
 
         if (position >= 350) position = 0;
 
-        Logging::logToSmartDashboard("WristPosition",
-                                     std::to_string(position) + " deg",
-                                     Logging::Level::INFO, Logging::Type::Number);
+        shuffleboardLogger.logInfo("WristPosition", position);
 
         if (_log)
-            m_consoleLogger.logInfo(_prefix, std::to_string(position) + "/" +
-                                     std::to_string(_config.maxDistance) +
-                                     " deg");
+            consoleLogger.logInfo(_prefix, "%.2f / %.2f deg", position, _config.maxDistance);
 
         return position;
     }
@@ -68,9 +63,8 @@ class WristSubsystem
     void UpdateMovement() override {
         if (_isMovingToPosition) {
             if (_log)
-                m_consoleLogger.logInfo(_prefix, "Target Position: " + std::to_string(_targetPosition) +
-                        std::string(_config.type == AxisType::Linear ? " in"
-                                                                     : " deg"));
+                consoleLogger.logInfo(_prefix, "Target position: %.2f %s",
+                    _targetPosition, _config.type == AxisType::Linear ? "in" : "deg");
 
             // TODO: extract multipliers to constants and pass through the
             // config
@@ -78,13 +72,12 @@ class WristSubsystem
                 _controller.Calculate(GetCurrentPosition(), _targetPosition);
             auto clampedRes = std::clamp(res, -1.0, 1.0) * 0.66;
             if (_log)
-                m_consoleLogger.logInfo(_prefix, "Clamped Res: " + std::to_string(clampedRes));
-            Logging::logToSmartDashboard(_prefix + " TargetPos",
-                                         std::to_string(_targetPosition),
-                                         Logging::Level::INFO, Logging::Type::Number);
+                consoleLogger.logInfo(_prefix, "Clamped res: %.3f", clampedRes);
+
+            shuffleboardLogger.logInfo(_prefix + " TargetPos", _targetPosition);
 
             if (_controller.AtSetpoint()) {
-                m_consoleLogger.logInfo(_prefix, "REACHED GOAL");
+                consoleLogger.logInfo(_prefix, "REACHED GOAL");
                 StopMovement();
                 return;
             }
@@ -94,7 +87,6 @@ class WristSubsystem
     }
 
    private:
-    ConsoleLogger m_consoleLogger;
     rev::CANSparkMax m_wristMotor{CANSparkMaxConstants::kWristRotationMotorID,
                                   rev::CANSparkMax::MotorType::kBrushless};
 

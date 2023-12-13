@@ -167,9 +167,6 @@ class DriveSubsystem : public frc2::SubsystemBase {
   // 4 defines the number of modules
   frc::SwerveDriveOdometry<4> m_odometry;
 
-  // wrapper of stdout with formatting
-  ConsoleLogger m_consoleLogger;
-
   // Pose viewing
   frc::Field2d m_field;
 };
