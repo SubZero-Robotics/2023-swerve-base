@@ -65,6 +65,11 @@ void ConnectorX::ConnectorXBoard::setLedPort(LedPort port) {
 }
 
 void ConnectorX::ConnectorXBoard::setOn(LedPort port) {
+  if (m_simDevice) {
+    m_simOn.Set(true);
+    return;
+  }
+
   setLedPort(port);
 
   Commands::Command cmd;
@@ -74,6 +79,11 @@ void ConnectorX::ConnectorXBoard::setOn(LedPort port) {
 }
 
 void ConnectorX::ConnectorXBoard::setOff(LedPort port) {
+  if (m_simDevice) {
+    m_simOn.Set(false);
+    return;
+  }
+
   setLedPort(port);
 
   Commands::Command cmd;
