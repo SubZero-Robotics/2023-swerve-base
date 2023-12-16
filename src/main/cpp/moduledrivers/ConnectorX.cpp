@@ -1,11 +1,12 @@
 #include "moduledrivers/ConnectorX.h"
+#include "utils/Logger.h"
 
 using namespace ConnectorX;
 
 ConnectorX::ConnectorXBoard::ConnectorXBoard(uint8_t slaveAddress, frc::I2C::Port port)
     : _i2c(std::make_unique<frc::I2C>(port, slaveAddress)),
       _slaveAddress(slaveAddress), m_simDevice("Connector-X", static_cast<int>(port), slaveAddress) {
-  setOff(LedPort::P0);
+  setOff(LedPort::P1);
 
   if (m_simDevice) {
     m_simOn = m_simDevice.CreateBoolean("On", false, false);
@@ -54,14 +55,17 @@ uint16_t ConnectorX::ConnectorXBoard::readAnalogPin(AnalogPort port) {
 }
 
 void ConnectorX::ConnectorXBoard::setLedPort(LedPort port) {
+  Logging::logToStdOut("requested led port", std::to_string((int)port), Logging::Level::INFO);
   if (port != _currentLedPort) {
     _currentLedPort = port;
+  Logging::logToStdOut("Current LED port", std::to_string((int)_currentLedPort), Logging::Level::INFO);
     Commands::Command cmd;
     cmd.commandType = Commands::CommandType::SetLedPort;
     cmd.commandData.commandSetLedPort.port = (uint8_t)port;
     sendCommand(cmd);
   }
 }
+
 
 void ConnectorX::ConnectorXBoard::setOn(LedPort port) {
   if (m_simDevice) {
@@ -112,7 +116,7 @@ void ConnectorX::ConnectorXBoard::setColor(LedPort port, uint8_t red, uint8_t gr
 
     return;
   }
-    
+  Logging::logToStdOut("colour LED port", std::to_string((int)port), Logging::Level::INFO); 
   setLedPort(port);
 
   Commands::Command cmd;
