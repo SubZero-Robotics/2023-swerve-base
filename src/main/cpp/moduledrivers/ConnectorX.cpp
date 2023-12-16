@@ -6,7 +6,7 @@ ConnectorX::ConnectorXBoard::ConnectorXBoard(uint8_t slaveAddress, frc::I2C::Por
     : _i2c(std::make_unique<frc::I2C>(port, slaveAddress)),
       _slaveAddress(slaveAddress) {
   setOff(LedPort::P0);
-  setOff(LedPort::P1);
+  setOff(LedPort::P0);
 }
 
 bool ConnectorX::ConnectorXBoard::initialize() { return !_i2c->AddressOnly(); }
