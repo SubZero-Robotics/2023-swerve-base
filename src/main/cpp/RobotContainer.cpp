@@ -57,6 +57,8 @@ RobotContainer::RobotContainer() {
             true, false, kLoopTime);
       },
       {&m_drive}));
+
+    m_chooser.SetDefaultOption("Leave Community", pathplanner::PathPlannerAuto("Leave COM").ToPtr().Unwrap().get());
 }
 
 void RobotContainer::ConfigureButtonBindings() {
@@ -79,6 +81,6 @@ void RobotContainer::ConfigureButtonBindings() {
                        frc::XboxController::Button::kX).OnTrue(LEDToggle(&m_leds).ToPtr());
 }
 
-frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
-    return pathplanner::PathPlannerAuto("Leave COM").ToPtr();
+frc2::Command* RobotContainer::GetAutonomousCommand() {
+    return m_chooser.GetSelected();
 }

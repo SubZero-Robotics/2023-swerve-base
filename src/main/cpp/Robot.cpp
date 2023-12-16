@@ -37,7 +37,7 @@ void Robot::DisabledPeriodic() {}
  * RobotContainer} class.
  */
 void Robot::AutonomousInit() {
-  m_autonomousCommand = m_container.GetAutonomousCommand().Unwrap().get();
+  m_autonomousCommand = m_container.GetAutonomousCommand();
 
   m_autonomousCommand->Schedule();
 }
