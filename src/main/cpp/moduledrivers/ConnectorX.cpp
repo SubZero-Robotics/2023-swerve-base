@@ -4,9 +4,15 @@ using namespace ConnectorX;
 
 ConnectorX::ConnectorXBoard::ConnectorXBoard(uint8_t slaveAddress, frc::I2C::Port port)
     : _i2c(std::make_unique<frc::I2C>(port, slaveAddress)),
-      _slaveAddress(slaveAddress) {
+      _slaveAddress(slaveAddress), m_simDevice("Connector-X", static_cast<int>(port), slaveAddress) {
   setOff(LedPort::P0);
-  setOff(LedPort::P0);
+
+  if (m_simDevice) {
+    m_simOn = m_simDevice.CreateBoolean("On", false, false);
+    m_simColorR = m_simDevice.CreateInt("Red", false, -1);
+    m_simColorG = m_simDevice.CreateInt("Green", false, -1);
+    m_simColorB = m_simDevice.CreateInt("Blue", false, -1);
+  }
 }
 
 bool ConnectorX::ConnectorXBoard::initialize() { return !_i2c->AddressOnly(); }
@@ -58,6 +64,11 @@ void ConnectorX::ConnectorXBoard::setLedPort(LedPort port) {
 }
 
 void ConnectorX::ConnectorXBoard::setOn(LedPort port) {
+  if (m_simDevice) {
+    m_simOn.Set(true);
+    return;
+  }
+
   setLedPort(port);
 
   Commands::Command cmd;
@@ -67,6 +78,11 @@ void ConnectorX::ConnectorXBoard::setOn(LedPort port) {
 }
 
 void ConnectorX::ConnectorXBoard::setOff(LedPort port) {
+  if (m_simDevice) {
+    m_simOn.Set(false);
+    return;
+  }
+
   setLedPort(port);
 
   Commands::Command cmd;
@@ -89,6 +105,14 @@ void ConnectorX::ConnectorXBoard::setPattern(LedPort port, PatternType pattern,
 
 void ConnectorX::ConnectorXBoard::setColor(LedPort port, uint8_t red, uint8_t green,
                           uint8_t blue) {
+  if (m_simDevice) {
+    m_simColorR.Set(red);
+    m_simColorG.Set(green);
+    m_simColorB.Set(blue);
+
+    return;
+  }
+    
   setLedPort(port);
 
   Commands::Command cmd;
@@ -96,10 +120,6 @@ void ConnectorX::ConnectorXBoard::setColor(LedPort port, uint8_t red, uint8_t gr
   cmd.commandData.commandColor.red = red;
   cmd.commandData.commandColor.green = green;
   cmd.commandData.commandColor.blue = blue;
-
-  m_currentColors[(uint8_t)port].red = cmd.commandData.commandColor.red;
-  m_currentColors[(uint8_t)port].green = cmd.commandData.commandColor.green;
-  m_currentColors[(uint8_t)port].blue = cmd.commandData.commandColor.blue;
 
   sendCommand(cmd);
 }
