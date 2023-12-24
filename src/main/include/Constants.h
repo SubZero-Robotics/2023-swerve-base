@@ -9,8 +9,8 @@
 #include <units/angular_velocity.h>
 #include <units/current.h>
 #include <units/length.h>
-#include <units/velocity.h>
 #include <units/time.h>
+#include <units/velocity.h>
 
 #include <numbers>
 
@@ -140,18 +140,75 @@ extern const frc::TrapezoidProfile<units::radians>::Constraints
 
 namespace OIConstants {
 constexpr int kDriverControllerPort = 0;
+constexpr int kOperatorControllerPort = 1;
 constexpr double kDriveDeadband = 0.05;
 }  // namespace OIConstants
 
-// TODO: actual values for these constants
-namespace WristConstants {
-    constexpr double kWristSpeed = 0.05;
-    constexpr int kWristRotationMotorID = 22;
-    constexpr double kWristSetP = 1;
-    constexpr double kWristSetP = 1;
-    constexpr double kWristSetP = 1;
-    constexpr double kWristDegreeLimit = 90;
-    constexpr double kWristStepSize = 90;
-    constexpr int kWristLimitSwitchPort = 1;
-    constexpr double kWristHomingSpeed = 0.05;
-} // namespace WristCostants
+constexpr uint8_t kLedAddress = 0x10;
+
+// Motor IDs
+namespace CANSparkMaxConstants {
+constexpr int kIntakeSpinnyBoyID = 20;
+constexpr int kWristRotationMotorID = 22;
+}  // namespace CANSparkMaxConstants
+
+namespace ArmConstants {
+constexpr double kMaxRPM = 4000;
+// Extension Constants
+constexpr double kExtensionGearRatio = 36;
+constexpr double kInPerRotation = -3.5 / kExtensionGearRatio;
+constexpr double kMaxArmDistance = 12;
+constexpr int kExtenderLimitSwitchPort = 2;
+constexpr double kExtenderStepSize = 1;
+
+constexpr double kExtenderSetP = 0.018386;
+constexpr double kExtenderSetI = 0.0075;
+constexpr double kExtenderSetD = 0.00062724;
+constexpr double kExtenderSetIZone = 0.01;
+constexpr double kExtenderSetFF = 0.000015;
+
+// Arm Rotation Constants
+constexpr int kRotationLimitSwitchHomePort = 0;
+constexpr int kRotationLimitSwitchMaxPort = 1;
+constexpr double kRotationHomeDegree = 60;
+constexpr double kRotationMaxDegree = 145;
+constexpr int kArmSoftLimitForwardDegrees = 65;
+constexpr double kArmGearRatio = 197.14;
+constexpr double kArmStepSize = 4;
+constexpr double kAntiGravityPercentage = -0.05;
+
+constexpr double kArmRotationSetP = 0.0018386;
+constexpr double kArmRotationSetI = 0.0075;
+constexpr double kArmRotationSetD = 0.00062724;
+constexpr double kArmRotationSetIZone = 0.01;
+constexpr double kArmRotationSetFF = 0.000015;
+
+// Motor Constants
+constexpr int kTicksPerMotorRotation = 42;
+constexpr double kArmTicksPerDegree =
+    (kTicksPerMotorRotation * kArmGearRatio) / 360.0;
+constexpr double kForwardRotationsSoftLimit =
+    (kArmSoftLimitForwardDegrees * kArmTicksPerDegree) / kTicksPerMotorRotation;
+constexpr int kReverseRotationsSoftLimit = 0;
+
+// Homing Speeds
+constexpr double kRotationHomingSpeed = .15;
+constexpr double kExtenderHomingSpeed = .66;
+constexpr double kWristHomingSpeed = .33;
+
+// Intake Constants
+constexpr double kIntakeSpeed = 0.33;
+constexpr double kOuttakeSpeed = 0.33;
+
+// Wrist Constants
+constexpr int kWristLimitSwitchPort = 0;
+constexpr int kWristGearRatio = 125;
+constexpr auto kWristDegreeLimit = 144;
+constexpr double kWristStepSize = 4;
+
+constexpr double kWristSetP = 0.0018386;
+constexpr double kWristSetI = 0.0075;
+constexpr double kWristSetD = 0.00062724;
+constexpr double kWristSetIZone = 0.01;
+constexpr double kWristSetFF = 0.000015;
+}  // namespace ArmConstants

@@ -6,28 +6,28 @@
 #include "subsystems/WristSubsystem.h"
 
 class RotateWrist : public frc2::CommandHelper<frc2::CommandBase, RotateWrist> {
-   public:
-    /**
-     * Creates a new RotateWrist.
-     *
-     * @param subsystem The subsystem used by this command.
-     */
-    explicit RotateWrist(WristSubsystem* subsystem,
-                         std::function<double()> rotation)
-        : m_effector{subsystem}, m_rotation{rotation} {
-        // Register that this command requires the subsystem.
-        AddRequirements(m_effector);
-    }
+ public:
+  /**
+   * Creates a new RotateWrist.
+   *
+   * @param subsystem The subsystem used by this command.
+   */
+  explicit RotateWrist(WristSubsystem* subsystem,
+                       std::function<double()> rotation)
+      : m_effector{subsystem}, m_rotation{rotation} {
+    // Register that this command requires the subsystem.
+    AddRequirements(m_effector);
+  }
 
-    void Execute() override {
-        double rotation = m_rotation();
+  void Execute() override {
+    double rotation = m_rotation();
 
-        if (abs(rotation) < kDeadzone) rotation = 0.0;
+    if (abs(rotation) < kDeadzone) rotation = 0.0;
 
-        m_effector->RunMotorExternal(rotation);
-    }
+    m_effector->RunMotorExternal(rotation);
+  }
 
-   private:
-    WristSubsystem* m_effector;
-    std::function<double()> m_rotation;
+ private:
+  WristSubsystem* m_effector;
+  std::function<double()> m_rotation;
 };

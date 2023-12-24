@@ -5,11 +5,11 @@
 #include "subsystems/DriveSubsystem.h"
 
 #include <frc/geometry/Rotation2d.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
-#include <units/velocity.h>
-#include <frc/smartdashboard/SmartDashboard.h>
 #include <units/length.h>
+#include <units/velocity.h>
 
 #include "Constants.h"
 #include "utils/SwerveUtils.h"
@@ -69,7 +69,8 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
 
     double currentTime = wpi::Now() * 1e-6;
     double elapsedTime = currentTime - m_prevTime;
-    double angleDif = SwerveUtils::AngleDifference(inputTranslationDir, m_currentTranslationDir);
+    double angleDif = SwerveUtils::AngleDifference(inputTranslationDir,
+                                                   m_currentTranslationDir);
 
     driveLoopTime = units::second_t{elapsedTime};
 
@@ -115,14 +116,15 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
   units::radians_per_second_t rotDelivered =
       m_currentRotation * DriveConstants::kMaxAngularSpeed;
 
-  auto states = kDriveKinematics.ToSwerveModuleStates(
-    DriveSubsystem::discretize(
-      fieldRelative
-          ? frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-                xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}))
-          : frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered, rotDelivered},
-          (driveLoopTime*4)));
+  auto states =
+      kDriveKinematics.ToSwerveModuleStates(DriveSubsystem::discretize(
+          fieldRelative
+              ? frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+                    xSpeedDelivered, ySpeedDelivered, rotDelivered,
+                    frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}))
+              : frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered,
+                                   rotDelivered},
+          (driveLoopTime * 4)));
 
   kDriveKinematics.DesaturateWheelSpeeds(&states, DriveConstants::kMaxSpeed);
 
@@ -135,7 +137,8 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
 }
 
 void DriveSubsystem::Drive(frc::ChassisSpeeds speeds) {
-  DriveSubsystem::SetModuleStates(kDriveKinematics.ToSwerveModuleStates(speeds));
+  DriveSubsystem::SetModuleStates(
+      kDriveKinematics.ToSwerveModuleStates(speeds));
 }
 
 void DriveSubsystem::SetX() {
@@ -176,14 +179,19 @@ double DriveSubsystem::GetTurnRate() { return -m_gyro.GetRate(); }
 
 frc::Pose2d DriveSubsystem::GetPose() { return m_odometry.GetPose(); }
 
-frc::ChassisSpeeds DriveSubsystem::discretize(units::meters_per_second_t vx, units::meters_per_second_t vy, units::radians_per_second_t omega, units::second_t dt) {
+frc::ChassisSpeeds DriveSubsystem::discretize(units::meters_per_second_t vx,
+                                              units::meters_per_second_t vy,
+                                              units::radians_per_second_t omega,
+                                              units::second_t dt) {
   frc::Pose2d desiredDeltaPose{vx * dt, vy * dt, omega * dt};
   frc::Twist2d twist = frc::Pose2d{}.Log(desiredDeltaPose);
-  return frc::ChassisSpeeds {twist.dx / dt, twist.dy / dt, twist.dtheta / dt};
+  return frc::ChassisSpeeds{twist.dx / dt, twist.dy / dt, twist.dtheta / dt};
 }
 
-frc::ChassisSpeeds DriveSubsystem::discretize(frc::ChassisSpeeds continuousSpeeds, units::second_t dt) {
-  return discretize(continuousSpeeds.vx, continuousSpeeds.vy, continuousSpeeds.omega, dt);
+frc::ChassisSpeeds DriveSubsystem::discretize(
+    frc::ChassisSpeeds continuousSpeeds, units::second_t dt) {
+  return discretize(continuousSpeeds.vx, continuousSpeeds.vy,
+                    continuousSpeeds.omega, dt);
 }
 
 void DriveSubsystem::ResetOdometry(frc::Pose2d pose) {

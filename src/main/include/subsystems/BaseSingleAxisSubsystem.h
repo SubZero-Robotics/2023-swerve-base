@@ -23,7 +23,7 @@
 
 template <typename Motor, typename Encoder>
 class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
-public:
+ public:
   enum ConfigConstants {
     MOTOR_DIRECTION_NORMAL = 1,
     MOTOR_DIRECTION_REVERSED = -1,
@@ -68,10 +68,18 @@ public:
                           frc::DigitalInput *maxSwitch, std::string prefix,
                           std::string ansiPrefixModifiers = "",
                           bool log = false)
-      : _motor(motor), _enc(encoder), _config(cfg), _controller(cfg.pid),
-        _isHoming(false), _isMovingToPosition(false), _targetPosition(0),
-        _prefix(prefix), _ansiPrefixModifiers(ansiPrefixModifiers), _log(log),
-        _minLimitSwitch(minSwitch), _maxLimitSwitch(maxSwitch) {
+      : _motor(motor),
+        _enc(encoder),
+        _config(cfg),
+        _controller(cfg.pid),
+        _isHoming(false),
+        _isMovingToPosition(false),
+        _targetPosition(0),
+        _prefix(prefix),
+        _ansiPrefixModifiers(ansiPrefixModifiers),
+        _log(log),
+        _minLimitSwitch(minSwitch),
+        _maxLimitSwitch(maxSwitch) {
     _config.defaultMovementSpeed =
         std::clamp(_config.defaultMovementSpeed, -1.0, 1.0);
   }
@@ -119,8 +127,7 @@ public:
     }
 
     else if (AtMax()) {
-      if (_log)
-        Logging::logToStdOut(_prefix, "AT MAX", Logging::Level::INFO);
+      if (_log) Logging::logToStdOut(_prefix, "AT MAX", Logging::Level::INFO);
       if (speed > 0) {
         if (_log)
           Logging::logToStdOut(_prefix,
@@ -160,12 +167,12 @@ public:
     // TODO: constant
     if (abs(speed) <= 0.05) {
       if (_isMovingToPosition)
-        return; // Don't set the motor and overwrite a potential
-                // automated movement
+        return;  // Don't set the motor and overwrite a potential
+                 // automated movement
 
       // TODO: Use velocity PID instead
       if (_config.type == AxisType::Rotational)
-        RunMotorSpeed(ArmConstants::kAntiGravityPercentage); // Make 'er hover!
+        RunMotorSpeed(ArmConstants::kAntiGravityPercentage);  // Make 'er hover!
       else
         _motor.Set(0);
 
@@ -352,7 +359,7 @@ public:
 
   static inline bool IsValidPort(int port) { return port >= 0 && port < 10; }
 
-protected:
+ protected:
   Motor &_motor;
   Encoder &_enc;
   SingleAxisConfig &_config;
@@ -364,7 +371,7 @@ protected:
   std::string _ansiPrefixModifiers;
   bool _log;
 
-private:
+ private:
   frc::DigitalInput *_minLimitSwitch = nullptr;
   frc::DigitalInput *_maxLimitSwitch = nullptr;
 };
