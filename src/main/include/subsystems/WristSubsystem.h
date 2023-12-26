@@ -6,12 +6,11 @@
 
 class WristSubsystem
     : public BaseSingleAxisSubsystem<rev::CANSparkMax,
-                                     rev::SparkMaxAbsoluteEncoder,
-                                     units::degree, units::degree_t> {
+                                     rev::SparkMaxAbsoluteEncoder> {
    public:
     WristSubsystem()
         : BaseSingleAxisSubsystem(m_config, m_wristMotor, m_encoder, &min,
-                                  nullptr, "WRIST", "\033[92;40;4m") {
+                                  nullptr, "WRIST") {
         _config = m_config;
         _controller = m_config.pid;
         _controller.SetTolerance(10, 10);

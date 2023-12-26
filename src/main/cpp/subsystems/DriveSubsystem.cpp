@@ -94,6 +94,8 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
                                   // is effectively instantaneous
     }
 
+    double currentTime = wpi::Now() * 1e-6;
+    double elapsedTime = currentTime - m_prevTime;
     double angleDif = SwerveUtils::AngleDifference(inputTranslationDir,
                                                    m_currentTranslationDir);
 
@@ -141,12 +143,15 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
   units::radians_per_second_t rotDelivered =
       m_currentRotation * DriveConstants::kMaxAngularSpeed;
 
-  auto states = kDriveKinematics.ToSwerveModuleStates(
-      fieldRelative
-          ? frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-                xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}))
-          : frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered, rotDelivered});
+  auto states =
+      kDriveKinematics.ToSwerveModuleStates(DriveSubsystem::discretize(
+          fieldRelative
+              ? frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+                    xSpeedDelivered, ySpeedDelivered, rotDelivered,
+                    frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}))
+              : frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered,
+                                   rotDelivered},
+          (driveLoopTime * 4)));
 
   kDriveKinematics.DesaturateWheelSpeeds(&states, DriveConstants::kMaxSpeed);
 

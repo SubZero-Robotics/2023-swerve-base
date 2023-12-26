@@ -48,7 +48,7 @@ MAXSwerveModule::MAXSwerveModule(const int drivingCANId, const int turningCANId,
       kTurningEncoderPositionPIDMinInput.value());
   m_turningPIDController.SetPositionPIDWrappingMaxInput(
       kTurningEncoderPositionPIDMaxInput.value());
-        
+
   // Set the PID Controller to use the duty cycle encoder on the swerve
   // module instead of the built in NEO550 encoder.
   m_turningPIDController.SetFeedbackDevice(m_turningAbsoluteEncoder);
