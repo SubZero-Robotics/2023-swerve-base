@@ -11,7 +11,7 @@ class WristSubsystem
    public:
     WristSubsystem()
         : BaseSingleAxisSubsystem(m_config, m_wristMotor, m_encoder, &min,
-                                  nullptr, "WRIST", "\033[92;40;4m") {
+                                  nullptr, "WRIST") {
         _config = m_config;
         _controller = m_config.pid;
         _controller.SetTolerance(10, 10);
@@ -23,7 +23,6 @@ class WristSubsystem
         if (_log)
             Logging::logToStdOut(_prefix, "RESET POSITION",
                                  Logging::Level::INFO);
-        // m_encoder.SetZeroOffset(0);
     }
 
     double GetCurrentPosition() override {
@@ -74,7 +73,7 @@ class WristSubsystem
                     "Target Position: " + std::to_string(_targetPosition) +
                         std::string(_config.type == AxisType::Linear ? " in"
                                                                      : " deg"),
-                    Logging::Level::INFO, _ansiPrefixModifiers);
+                    Logging::Level::INFO);
 
             // TODO: extract multipliers to constants and pass through the
             // config
@@ -84,15 +83,14 @@ class WristSubsystem
             if (_log)
                 Logging::logToStdOut(
                     _prefix, "Clamped Res: " + std::to_string(clampedRes),
-                    Logging::Level::INFO, _ansiPrefixModifiers);
+                    Logging::Level::INFO);
             Logging::logToSmartDashboard(_prefix + " TargetPos",
                                          std::to_string(_targetPosition),
                                          Logging::Level::INFO);
 
             if (_controller.AtSetpoint()) {
                 Logging::logToStdOut(_prefix, "REACHED GOAL",
-                                     Logging::Level::INFO,
-                                     _ansiPrefixModifiers);
+                                     Logging::Level::INFO);
                 StopMovement();
                 return;
             }
