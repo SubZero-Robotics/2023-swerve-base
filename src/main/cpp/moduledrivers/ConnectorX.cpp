@@ -1,11 +1,14 @@
 #include "moduledrivers/ConnectorX.h"
+
 #include "utils/Logger.h"
 
 using namespace ConnectorX;
 
-ConnectorX::ConnectorXBoard::ConnectorXBoard(uint8_t slaveAddress, frc::I2C::Port port)
+ConnectorX::ConnectorXBoard::ConnectorXBoard(uint8_t slaveAddress,
+                                             frc::I2C::Port port)
     : _i2c(std::make_unique<frc::I2C>(port, slaveAddress)),
-      _slaveAddress(slaveAddress), m_simDevice("Connector-X", static_cast<int>(port), slaveAddress) {
+      _slaveAddress(slaveAddress),
+      m_simDevice("Connector-X", static_cast<int>(port), slaveAddress) {
   setOff(LedPort::P1);
 
   if (m_simDevice) {
@@ -18,7 +21,8 @@ ConnectorX::ConnectorXBoard::ConnectorXBoard(uint8_t slaveAddress, frc::I2C::Por
 
 bool ConnectorX::ConnectorXBoard::initialize() { return !_i2c->AddressOnly(); }
 
-void ConnectorX::ConnectorXBoard::configureDigitalPin(DigitalPort port, PinMode mode) {
+void ConnectorX::ConnectorXBoard::configureDigitalPin(DigitalPort port,
+                                                      PinMode mode) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::DigitalSetup;
   cmd.commandData.commandDigitalSetup = {.port = (uint8_t)port,
@@ -27,7 +31,8 @@ void ConnectorX::ConnectorXBoard::configureDigitalPin(DigitalPort port, PinMode 
   sendCommand(cmd);
 }
 
-void ConnectorX::ConnectorXBoard::writeDigitalPin(DigitalPort port, bool value) {
+void ConnectorX::ConnectorXBoard::writeDigitalPin(DigitalPort port,
+                                                  bool value) {
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::DigitalWrite;
   cmd.commandData.commandDigitalWrite = {.port = (uint8_t)port,
@@ -55,17 +60,19 @@ uint16_t ConnectorX::ConnectorXBoard::readAnalogPin(AnalogPort port) {
 }
 
 void ConnectorX::ConnectorXBoard::setLedPort(LedPort port) {
-  Logging::logToStdOut("requested led port", std::to_string((int)port), Logging::Level::INFO);
+  Logging::logToStdOut("requested led port", std::to_string((int)port),
+                       Logging::Level::INFO);
   if (port != _currentLedPort) {
     _currentLedPort = port;
-  Logging::logToStdOut("Current LED port", std::to_string((int)_currentLedPort), Logging::Level::INFO);
+    Logging::logToStdOut("Current LED port",
+                         std::to_string((int)_currentLedPort),
+                         Logging::Level::INFO);
     Commands::Command cmd;
     cmd.commandType = Commands::CommandType::SetLedPort;
     cmd.commandData.commandSetLedPort.port = (uint8_t)port;
     sendCommand(cmd);
   }
 }
-
 
 void ConnectorX::ConnectorXBoard::setOn(LedPort port) {
   if (m_simDevice) {
@@ -96,7 +103,7 @@ void ConnectorX::ConnectorXBoard::setOff(LedPort port) {
 }
 
 void ConnectorX::ConnectorXBoard::setPattern(LedPort port, PatternType pattern,
-                            bool oneShot, int16_t delay) {
+                                             bool oneShot, int16_t delay) {
   setLedPort(port);
 
   Commands::Command cmd;
@@ -107,8 +114,8 @@ void ConnectorX::ConnectorXBoard::setPattern(LedPort port, PatternType pattern,
   sendCommand(cmd);
 }
 
-void ConnectorX::ConnectorXBoard::setColor(LedPort port, uint8_t red, uint8_t green,
-                          uint8_t blue) {
+void ConnectorX::ConnectorXBoard::setColor(LedPort port, uint8_t red,
+                                           uint8_t green, uint8_t blue) {
   if (m_simDevice) {
     m_simColorR.Set(red);
     m_simColorG.Set(green);
@@ -116,7 +123,8 @@ void ConnectorX::ConnectorXBoard::setColor(LedPort port, uint8_t red, uint8_t gr
 
     return;
   }
-  Logging::logToStdOut("colour LED port", std::to_string((int)port), Logging::Level::INFO); 
+  Logging::logToStdOut("colour LED port", std::to_string((int)port),
+                       Logging::Level::INFO);
   setLedPort(port);
 
   Commands::Command cmd;
@@ -177,8 +185,22 @@ Message ConnectorX::ConnectorXBoard::getLatestRadioMessage() {
   return res.responseData.responseRadioLastReceived.msg;
 }
 
-Commands::Response ConnectorX::ConnectorXBoard::sendCommand(Commands::Command command,
-                                           bool expectResponse) {
+frc::Color8Bit ConnectorX::ConnectorXBoard::GetColor(LedPort port) {
+  if (m_simDevice) {
+    return frc::Color8Bit(m_simColorR.Get(), m_simColorG.Get(),
+                          m_simColorB.Get());
+  }
+
+  Commands::Command cmd;
+  cmd.commandType = Commands::CommandType::GetColor;
+  cmd.commandData.commandGetColor = port;
+
+  Commands::Response res = sendCommand(cmd, true);
+  return frc::Color8Bit(static_cast<double>((res.responseData.responseGetColor >> 16) & 0xff) / 255.0, static_cast<double>((res.responseData.responseGetColor >> 8) & 0xff) / 255.0, static_cast<double>(res.responseData.responseGetColor & 0xff) / 255.0);
+}
+
+Commands::Response ConnectorX::ConnectorXBoard::sendCommand(
+    Commands::Command command, bool expectResponse) {
   using namespace Commands;
 
   _lastCommand = command.commandType;
@@ -191,51 +213,51 @@ Commands::Response ConnectorX::ConnectorXBoard::sendCommand(Commands::Command co
   sendBuf[0] = (uint8_t)command.commandType;
 
   switch (command.commandType) {
-  case CommandType::On:
-  case CommandType::Off:
-    sendLen = 0;
-    break;
-  case CommandType::ReadConfig:
-    sendLen = 0;
-    recSize = sizeof(ResponseReadConfiguration);
-    break;
-  case CommandType::ReadPatternDone:
-    sendLen = 0;
-    recSize = sizeof(ResponsePatternDone);
-    break;
-  case CommandType::RadioGetLatestReceived:
-    sendLen = 0;
-    recSize = sizeof(ResponseRadioLastReceived);
-    break;
-  case CommandType::SetLedPort:
-    sendLen = 1;
-    break;
-  case CommandType::ReadAnalog:
-    sendLen = 1;
-    recSize = sizeof(ResponseReadAnalog);
-    break;
-  case CommandType::DigitalRead:
-    sendLen = 1;
-    recSize = sizeof(ResponseDigitalRead);
-    break;
-  case CommandType::DigitalWrite:
-    sendLen = sizeof(CommandDigitalWrite);
-    break;
-  case CommandType::DigitalSetup:
-    sendLen = sizeof(CommandDigitalSetup);
-    break;
-  case CommandType::Pattern:
-    sendLen = sizeof(CommandPattern);
-    break;
-  case CommandType::ChangeColor:
-    sendLen = sizeof(CommandColor);
-    break;
-  case CommandType::SetConfig:
-    sendLen = sizeof(CommandSetConfig);
-    break;
-  case CommandType::RadioSend:
-    sendLen = sizeof(CommandRadioSend);
-    break;
+    case CommandType::On:
+    case CommandType::Off:
+      sendLen = 0;
+      break;
+    case CommandType::ReadConfig:
+      sendLen = 0;
+      recSize = sizeof(ResponseReadConfiguration);
+      break;
+    case CommandType::ReadPatternDone:
+      sendLen = 0;
+      recSize = sizeof(ResponsePatternDone);
+      break;
+    case CommandType::RadioGetLatestReceived:
+      sendLen = 0;
+      recSize = sizeof(ResponseRadioLastReceived);
+      break;
+    case CommandType::SetLedPort:
+      sendLen = 1;
+      break;
+    case CommandType::ReadAnalog:
+      sendLen = 1;
+      recSize = sizeof(ResponseReadAnalog);
+      break;
+    case CommandType::DigitalRead:
+      sendLen = 1;
+      recSize = sizeof(ResponseDigitalRead);
+      break;
+    case CommandType::DigitalWrite:
+      sendLen = sizeof(CommandDigitalWrite);
+      break;
+    case CommandType::DigitalSetup:
+      sendLen = sizeof(CommandDigitalSetup);
+      break;
+    case CommandType::Pattern:
+      sendLen = sizeof(CommandPattern);
+      break;
+    case CommandType::ChangeColor:
+      sendLen = sizeof(CommandColor);
+      break;
+    case CommandType::SetConfig:
+      sendLen = sizeof(CommandSetConfig);
+      break;
+    case CommandType::RadioSend:
+      sendLen = sizeof(CommandRadioSend);
+      break;
   }
 
   memcpy(sendBuf + 1, &command.commandData, sendLen);
