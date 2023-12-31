@@ -9,8 +9,8 @@
 #include <units/angular_velocity.h>
 #include <units/current.h>
 #include <units/length.h>
-#include <units/velocity.h>
 #include <units/time.h>
+#include <units/velocity.h>
 
 #include <numbers>
 
@@ -144,7 +144,7 @@ constexpr int kOperatorControllerPort = 1;
 constexpr double kDriveDeadband = 0.05;
 }  // namespace OIConstants
 
-constexpr uint8_t kLedAddress = 0x02;
+constexpr uint8_t kLedAddress = 0x10;
 
 // Motor IDs
 namespace CANSparkMaxConstants {

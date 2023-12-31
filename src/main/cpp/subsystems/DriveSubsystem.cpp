@@ -14,6 +14,7 @@
 #include "Constants.h"
 #include "frc/DataLogManager.h"
 #include "utils/SwerveUtils.h"
+#include "utils/ShuffleboardLogger.h"
 
 using namespace DriveConstants;
 
@@ -41,6 +42,14 @@ void DriveSubsystem::Periodic() {
                     {m_frontLeft.GetPosition(), m_rearLeft.GetPosition(),
                      m_frontRight.GetPosition(), m_rearRight.GetPosition()});
 
+  if (!logCounter++) {
+    shuffleboardLogger.logInfo("Gyro Angle", m_gyro.GetAngle());
+    shuffleboardLogger.logInfo("Rear Left Position", m_rearLeft.GetPosition().distance.value());
+    shuffleboardLogger.logInfo("Rear Right Position", m_rearRight.GetPosition().distance.value());
+  }
+
+  logCounter %= 10;
+
   m_field.SetRobotPose(m_odometry.GetPose());
 }
 
@@ -50,6 +59,10 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
                            bool rateLimit, units::second_t periodSeconds) {
   double xSpeedCommanded;
   double ySpeedCommanded;
+
+  shuffleboardLogger.logInfo("xSpeed", xSpeed.value());
+  shuffleboardLogger.logInfo("ySpeed", ySpeed.value());
+  shuffleboardLogger.logInfo("Rotation", rot.value());
 
   double currentTime = wpi::Now() * 1e-6;
   double elapsedTime = currentTime - m_prevTime;
@@ -72,6 +85,8 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
                                   // is effectively instantaneous
     }
 
+    double currentTime = wpi::Now() * 1e-6;
+    double elapsedTime = currentTime - m_prevTime;
     double angleDif = SwerveUtils::AngleDifference(inputTranslationDir,
                                                    m_currentTranslationDir);
 
@@ -119,12 +134,15 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
   units::radians_per_second_t rotDelivered =
       m_currentRotation * DriveConstants::kMaxAngularSpeed;
 
-  auto states = kDriveKinematics.ToSwerveModuleStates(
-      fieldRelative
-          ? frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-                xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}))
-          : frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered, rotDelivered});
+  auto states =
+      kDriveKinematics.ToSwerveModuleStates(DriveSubsystem::discretize(
+          fieldRelative
+              ? frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+                    xSpeedDelivered, ySpeedDelivered, rotDelivered,
+                    frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}))
+              : frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered,
+                                   rotDelivered},
+          (driveLoopTime * 4)));
 
   kDriveKinematics.DesaturateWheelSpeeds(&states, DriveConstants::kMaxSpeed);
 
@@ -158,7 +176,7 @@ void DriveSubsystem::SetX() {
 }
 
 void DriveSubsystem::logMotorState(MAXSwerveModule &motor, std::string key) {
-  consoleLogger.logInfo(key, motor.GetState().speed.value());
+  shuffleboardLogger.logInfo(key, motor.GetState().speed.value());
 }
 
 void DriveSubsystem::SetModuleStates(
