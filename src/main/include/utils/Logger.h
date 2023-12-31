@@ -11,10 +11,17 @@ namespace Logging {
 const std::string keyPrefix = "LOG";
 
 static void logToSmartDashboard(const std::string &key, const std::string &msg,
-                                Level level = Level::INFO) {
+                                Level level = Level::INFO, Type type = Type::String) {
   if ((int)level < (int)kMinLogLevel)
     return;
-  frc::SmartDashboard::PutString(key, msg);
+  switch (type) {
+    case Type::Number:
+      frc::SmartDashboard::PutNumber(key, std::stod(msg));
+      break;
+    default:
+      frc::SmartDashboard::PutString(key, msg);
+      break;
+  }
 }
 
 static void logToStdOut(const std::string &key, const std::string &msg,

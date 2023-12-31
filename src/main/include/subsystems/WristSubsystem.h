@@ -6,8 +6,7 @@
 
 class WristSubsystem
     : public BaseSingleAxisSubsystem<rev::CANSparkMax,
-                                     rev::SparkMaxAbsoluteEncoder,
-                                     units::degree, units::degree_t> {
+                                     rev::SparkMaxAbsoluteEncoder> {
    public:
     WristSubsystem()
         : BaseSingleAxisSubsystem(m_config, m_wristMotor, m_encoder, &min,
@@ -23,6 +22,7 @@ class WristSubsystem
         if (_log)
             Logging::logToStdOut(_prefix, "RESET POSITION",
                                  Logging::Level::INFO);
+        // m_encoder.SetZeroOffset(0);
     }
 
     double GetCurrentPosition() override {
@@ -32,7 +32,7 @@ class WristSubsystem
 
         Logging::logToSmartDashboard("WristPosition",
                                      std::to_string(position) + " deg",
-                                     Logging::Level::INFO);
+                                     Logging::Level::INFO, Logging::Type::Number);
 
         if (_log)
             Logging::logToStdOut(_prefix,
@@ -45,13 +45,14 @@ class WristSubsystem
     }
 
     void RunMotorExternal(double speed) override {
-        if (abs(speed) <= WristConstants::kWristSpeed) {
+        // TODO: constant
+        if (abs(speed) <= 0.05) {
             if (_isMovingToPosition)
                 return;  // Don't set the motor and overwrite a potential
                          // automated movement
 
             if (_config.type == AxisType::Rotational)
-                RunMotorSpeed(-WristConstants::kWristSpeed);
+                RunMotorSpeed(-0.005);
             else
                 _motor.Set(0);
             return;
@@ -86,7 +87,7 @@ class WristSubsystem
                     Logging::Level::INFO);
             Logging::logToSmartDashboard(_prefix + " TargetPos",
                                          std::to_string(_targetPosition),
-                                         Logging::Level::INFO);
+                                         Logging::Level::INFO, Logging::Type::Number);
 
             if (_controller.AtSetpoint()) {
                 Logging::logToStdOut(_prefix, "REACHED GOAL",
@@ -100,7 +101,7 @@ class WristSubsystem
     }
 
    private:
-    rev::CANSparkMax m_wristMotor{WristConstants::kWristRotationMotorID,
+    rev::CANSparkMax m_wristMotor{CANSparkMaxConstants::kWristRotationMotorID,
                                   rev::CANSparkMax::MotorType::kBrushless};
 
     rev::SparkMaxAbsoluteEncoder m_encoder = m_wristMotor.GetAbsoluteEncoder(
@@ -108,17 +109,17 @@ class WristSubsystem
 
     SingleAxisConfig m_config = {
         .type = BaseSingleAxisSubsystem::AxisType::Rotational,
-        .pid = frc2::PIDController(WristConstants::kWristSetP,
-                                   WristConstants::kWristSetI,
-                                   WristConstants::kWristSetD),
+        .pid = frc::PIDController(ArmConstants::kWristSetP,
+                                   ArmConstants::kWristSetI,
+                                   ArmConstants::kWristSetD),
         .minDistance = 0,
-        .maxDistance = WristConstants::kWristDegreeLimit,
+        .maxDistance = ArmConstants::kWristDegreeLimit,
         .distancePerRevolution = 360.0,
-        .stepSize = WristConstants::kWristStepSize,
-        .motorMultiplier = -1.0,
-        .minLimitSwitchPort = WristConstants::kWristLimitSwitchPort,
+        .stepSize = ArmConstants::kWristStepSize,
+        .motorMultiplier = 1.0,
+        .minLimitSwitchPort = ArmConstants::kWristLimitSwitchPort,
         .maxLimitSwitchPort = BaseSingleAxisSubsystem::UNUSED_DIO_PORT,
-        .defaultMovementSpeed = -WristConstants::kWristHomingSpeed};
+        .defaultMovementSpeed = -ArmConstants::kWristHomingSpeed};
 
-    frc::DigitalInput min{WristConstants::kWristLimitSwitchPort};
+    frc::DigitalInput min{ArmConstants::kWristLimitSwitchPort};
 };

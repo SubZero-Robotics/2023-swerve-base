@@ -22,14 +22,22 @@
 
 #include "Constants.h"
 #include "subsystems/DriveSubsystem.h"
+#include "commands/Funni.h"
+#include "commands/LEDToggleCommand.h"
+#include "commands/RotateWristCommand.h"
+#include "commands/IntakeInCommand.h"
+#include "commands/IntakeOutCommand.h"
 
 using namespace DriveConstants;
 
 RobotContainer::RobotContainer() {
   // Initialize all of your commands and subsystems here
 
+  m_wrist = std::make_unique<WristSubsystem>();
+
   // Configure the button bindings
   ConfigureButtonBindings();
+
 
   // Set up default drive command
   // The left stick controls translation of the robot.
@@ -52,6 +60,20 @@ void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController,
                        frc::XboxController::Button::kRightBumper)
       .WhileTrue(new frc2::RunCommand([this] { m_drive.SetX(); }, {&m_drive}));
+
+    m_wrist->SetDefaultCommand(
+        RotateWrist(m_wrist.get(), [this] {
+            return -m_operatorController.GetRightY();
+        }));
+    
+    frc2::JoystickButton(&m_operatorController,
+                       frc::XboxController::Button::kRightBumper).WhileTrue(IntakeIn(&m_intake).ToPtr());
+
+    frc2::JoystickButton(&m_operatorController,
+                       frc::XboxController::Button::kLeftBumper).WhileTrue(IntakeOut(&m_intake).ToPtr());
+
+    frc2::JoystickButton(&m_driverController,
+                       frc::XboxController::Button::kX).OnTrue(LEDToggle(&m_leds).ToPtr());
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {
@@ -65,8 +87,8 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
   auto exampleTrajectory = frc::TrajectoryGenerator::GenerateTrajectory(
       // Start at the origin facing the +X direction
       frc::Pose2d{0_m, 0_m, 0_deg},
-      // Pass through these two interior waypoints, making an 's' curve path
-      {frc::Translation2d{1_m, 1_m}, frc::Translation2d{2_m, -1_m}},
+      // Make these be 0m so it drives a straight line
+      {frc::Translation2d{0_m, 0_m}, frc::Translation2d{0_m, 0_m}},
       // End 3 meters straight ahead of where we started, facing forward
       frc::Pose2d{3_m, 0_m, 0_deg},
       // Pass the config
@@ -84,8 +106,8 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
 
       m_drive.kDriveKinematics,
 
-      frc2::PIDController{AutoConstants::kPXController, 0, 0},
-      frc2::PIDController{AutoConstants::kPYController, 0, 0}, thetaController,
+      frc::PIDController{AutoConstants::kPXController, 0, 0},
+      frc::PIDController{AutoConstants::kPYController, 0, 0}, thetaController,
 
       [this](auto moduleStates) { m_drive.SetModuleStates(moduleStates); },
 
@@ -96,7 +118,6 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
 
   // no auto
   return new frc2::SequentialCommandGroup(
-      std::move(swerveControllerCommand),
       frc2::InstantCommand(
           [this]() {
             m_drive.Drive(0_mps, 0_mps, 0_rad_per_s, false, false, kLoopTime);

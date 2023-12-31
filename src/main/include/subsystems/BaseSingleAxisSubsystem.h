@@ -19,7 +19,7 @@
 
 #include "Constants.h"
 #include "subsystems/ISingleAxisSubsystem.h"
-#include "utils/Logging.h"
+#include "utils/Logger.h"
 
 template <typename Motor, typename Encoder>
 class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
@@ -50,7 +50,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
    */
   struct SingleAxisConfig {
     AxisType type;
-    frc2::PIDController pid;
+    frc::PIDController pid;
     // TODO: Make a velocity PID
     double minDistance;
     double maxDistance;
@@ -347,7 +347,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
   Motor &_motor;
   Encoder &_enc;
   SingleAxisConfig &_config;
-  frc2::PIDController _controller;
+  frc::PIDController _controller;
   bool _isHoming = false;
   bool _isMovingToPosition = false;
   double _targetPosition = 0.0;

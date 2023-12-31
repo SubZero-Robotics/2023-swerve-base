@@ -16,6 +16,9 @@
 
 #include "Constants.h"
 #include "subsystems/DriveSubsystem.h"
+#include "moduledrivers/ConnectorX.h"
+#include "subsystems/IntakeSubsystem.h"
+#include "subsystems/WristSubsystem.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -33,6 +36,7 @@ class RobotContainer {
  private:
   // The driver's controller
   frc::XboxController m_driverController{OIConstants::kDriverControllerPort};
+  frc::XboxController m_operatorController{OIConstants::kOperatorControllerPort};
 
   // The robot's subsystems and commands are defined here...
 
@@ -41,6 +45,11 @@ class RobotContainer {
 
   // The chooser for the autonomous routines
   frc::SendableChooser<frc2::Command*> m_chooser;
+
+  std::unique_ptr<WristSubsystem> m_wrist;
+
+  ConnectorX::ConnectorXBoard m_leds{kLedAddress};
+  IntakeSubsystem m_intake{&m_leds};
 
   void ConfigureButtonBindings();
 };

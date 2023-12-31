@@ -12,6 +12,7 @@
 #include <units/velocity.h>
 
 #include "Constants.h"
+#include "frc/DataLogManager.h"
 #include "utils/SwerveUtils.h"
 
 using namespace DriveConstants;
@@ -40,6 +41,21 @@ void DriveSubsystem::Periodic() {
                     {m_frontLeft.GetPosition(), m_rearLeft.GetPosition(),
                      m_frontRight.GetPosition(), m_rearRight.GetPosition()});
 
+  if (!logCounter++) {
+    Logging::logToSmartDashboard(
+        "Gyro Angle", std::to_string(m_gyro.GetAngle()), Logging::Level::INFO, Logging::Type::Number);
+    Logging::logToSmartDashboard(
+        "Rear Left Position",
+        std::to_string(m_rearLeft.GetPosition().distance.value()),
+        Logging::Level::INFO, Logging::Type::Number);
+    Logging::logToSmartDashboard(
+        "Rear Right Position",
+        std::to_string(m_rearRight.GetPosition().distance.value()),
+        Logging::Level::INFO, Logging::Type::Number);
+  }
+
+  logCounter %= 10;
+
   m_field.SetRobotPose(m_odometry.GetPose());
 }
 
@@ -49,6 +65,17 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
                            bool rateLimit, units::second_t periodSeconds) {
   double xSpeedCommanded;
   double ySpeedCommanded;
+
+  Logging::logToSmartDashboard("xSpeed", std::to_string((double)xSpeed),
+                               Logging::Level::INFO, Logging::Type::Number);
+  Logging::logToSmartDashboard("ySpeed", std::to_string((double)ySpeed),
+                               Logging::Level::INFO, Logging::Type::Number);
+  Logging::logToSmartDashboard("Rotation", std::to_string((double)rot),
+                               Logging::Level::INFO, Logging::Type::Number);
+
+  double currentTime = wpi::Now() * 1e-6;
+  double elapsedTime = currentTime - m_prevTime;
+  periodSeconds = units::second_t(elapsedTime);
 
   if (rateLimit) {
     // Convert XY to polar for rate limiting
@@ -134,6 +161,11 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
   m_frontRight.SetDesiredState(fr);
   m_rearLeft.SetDesiredState(bl);
   m_rearRight.SetDesiredState(br);
+
+  logMotorState(m_frontLeft, std::string("Front Left Motor"));
+  logMotorState(m_frontRight, std::string("Front Right Motor"));
+  logMotorState(m_rearLeft, std::string("Rear Left Motor"));
+  logMotorState(m_rearRight, std::string("Rear Right Motor"));
 }
 
 void DriveSubsystem::Drive(frc::ChassisSpeeds speeds) {
@@ -150,6 +182,12 @@ void DriveSubsystem::SetX() {
       frc::SwerveModuleState{0_mps, frc::Rotation2d{-45_deg}});
   m_rearRight.SetDesiredState(
       frc::SwerveModuleState{0_mps, frc::Rotation2d{45_deg}});
+}
+
+void DriveSubsystem::logMotorState(MAXSwerveModule &motor, std::string key) {
+  Logging::logToSmartDashboard(key,
+                               std::to_string(motor.GetState().speed.value()),
+                               Logging::Level::INFO, Logging::Type::Number);
 }
 
 void DriveSubsystem::SetModuleStates(
@@ -169,7 +207,7 @@ void DriveSubsystem::ResetEncoders() {
   m_rearRight.ResetEncoders();
 }
 
-units::degree_t DriveSubsystem::GetHeading() const {
+units::degree_t DriveSubsystem::GetHeading() {
   return frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}).Degrees();
 }
 
