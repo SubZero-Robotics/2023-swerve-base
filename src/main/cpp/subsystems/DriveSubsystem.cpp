@@ -14,6 +14,7 @@
 #include "Constants.h"
 #include "frc/DataLogManager.h"
 #include "utils/SwerveUtils.h"
+#include "utils/ShuffleboardLogger.h"
 
 using namespace DriveConstants;
 
@@ -42,16 +43,9 @@ void DriveSubsystem::Periodic() {
                      m_frontRight.GetPosition(), m_rearRight.GetPosition()});
 
   if (!logCounter++) {
-    Logging::logToSmartDashboard(
-        "Gyro Angle", std::to_string(m_gyro.GetAngle()), Logging::Level::INFO, Logging::Type::Number);
-    Logging::logToSmartDashboard(
-        "Rear Left Position",
-        std::to_string(m_rearLeft.GetPosition().distance.value()),
-        Logging::Level::INFO, Logging::Type::Number);
-    Logging::logToSmartDashboard(
-        "Rear Right Position",
-        std::to_string(m_rearRight.GetPosition().distance.value()),
-        Logging::Level::INFO, Logging::Type::Number);
+    shuffleboardLogger.logInfo("Gyro Angle", m_gyro.GetAngle());
+    shuffleboardLogger.logInfo("Rear Left Position", m_rearLeft.GetPosition().distance.value());
+    shuffleboardLogger.logInfo("Rear Right Position", m_rearRight.GetPosition().distance.value());
   }
 
   logCounter %= 10;
@@ -66,12 +60,9 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
   double xSpeedCommanded;
   double ySpeedCommanded;
 
-  Logging::logToSmartDashboard("xSpeed", std::to_string((double)xSpeed),
-                               Logging::Level::INFO, Logging::Type::Number);
-  Logging::logToSmartDashboard("ySpeed", std::to_string((double)ySpeed),
-                               Logging::Level::INFO, Logging::Type::Number);
-  Logging::logToSmartDashboard("Rotation", std::to_string((double)rot),
-                               Logging::Level::INFO, Logging::Type::Number);
+  shuffleboardLogger.logInfo("xSpeed", xSpeed.value());
+  shuffleboardLogger.logInfo("ySpeed", ySpeed.value());
+  shuffleboardLogger.logInfo("Rotation", rot.value());
 
   double currentTime = wpi::Now() * 1e-6;
   double elapsedTime = currentTime - m_prevTime;
@@ -185,9 +176,7 @@ void DriveSubsystem::SetX() {
 }
 
 void DriveSubsystem::logMotorState(MAXSwerveModule &motor, std::string key) {
-  Logging::logToSmartDashboard(key,
-                               std::to_string(motor.GetState().speed.value()),
-                               Logging::Level::INFO, Logging::Type::Number);
+  shuffleboardLogger.logInfo(key, motor.GetState().speed.value());
 }
 
 void DriveSubsystem::SetModuleStates(

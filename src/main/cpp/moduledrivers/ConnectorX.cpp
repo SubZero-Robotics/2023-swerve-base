@@ -1,7 +1,5 @@
 #include "moduledrivers/ConnectorX.h"
 
-#include "utils/Logger.h"
-
 using namespace ConnectorX;
 
 ConnectorX::ConnectorXBoard::ConnectorXBoard(uint8_t slaveAddress,
@@ -60,13 +58,12 @@ uint16_t ConnectorX::ConnectorXBoard::readAnalogPin(AnalogPort port) {
 }
 
 void ConnectorX::ConnectorXBoard::setLedPort(LedPort port) {
-  Logging::logToStdOut("requested led port", std::to_string((int)port),
-                       Logging::Level::INFO);
+  consoleLogger.logInfo("requested led port", (int)port);
+
   if (port != _currentLedPort) {
     _currentLedPort = port;
-    Logging::logToStdOut("Current LED port",
-                         std::to_string((int)_currentLedPort),
-                         Logging::Level::INFO);
+    consoleLogger.logInfo("Current LED port", (int)_currentLedPort);
+
     Commands::Command cmd;
     cmd.commandType = Commands::CommandType::SetLedPort;
     cmd.commandData.commandSetLedPort.port = (uint8_t)port;
@@ -123,8 +120,8 @@ void ConnectorX::ConnectorXBoard::setColor(LedPort port, uint8_t red,
 
     return;
   }
-  Logging::logToStdOut("colour LED port", std::to_string((int)port),
-                       Logging::Level::INFO);
+  consoleLogger.logInfo("colour LED port", (int)port);
+
   setLedPort(port);
 
   Commands::Command cmd;
@@ -264,6 +261,12 @@ Commands::Response ConnectorX::ConnectorXBoard::sendCommand(
       break;
     case CommandType::RadioSend:
       sendLen = sizeof(CommandRadioSend);
+      break;
+    case CommandType::GetColor:
+      sendLen = 0;
+      break;
+    case CommandType::GetPort:
+      sendLen = 0;
       break;
   }
 

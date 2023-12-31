@@ -19,7 +19,7 @@
 
 #include "Constants.h"
 #include "subsystems/ISingleAxisSubsystem.h"
-#include "utils/Logger.h"
+#include "utils/ShuffleboardLogger.h"
 
 template <typename Motor, typename Encoder>
 class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
@@ -92,59 +92,47 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
    */
   void RunMotorSpeed(double speed, bool ignoreEncoder = false) override {
     if (_log)
-      Logging::logToStdOut(_prefix,
-                           "MUL IS " + std::to_string(_config.motorMultiplier),
-                           Logging::Level::VERBOSE);
+      consoleLogger.logVerbose(_prefix, "MUL IS %.2f", _config.motorMultiplier);
     speed *= _config.motorMultiplier;
     speed = std::clamp(speed, -1.0, 1.0);
     if (_log)
-      Logging::logToStdOut(_prefix, "SPEED IS " + std::to_string(speed),
-                           Logging::Level::VERBOSE);
+      consoleLogger.logVerbose(_prefix, "SPEED IS %.2f", speed);
 
     bool homeState = ignoreEncoder ? AtLimitSwitchHome() : AtHome();
     if (homeState) {
       if (_log)
-        Logging::logToStdOut(_prefix, "AT HOME", Logging::Level::INFO);
+        consoleLogger.logInfo(_prefix, "AT HOME");
       if (speed < 0) {
         if (_log)
-          Logging::logToStdOut(_prefix,
-                               "SETTING SPEED TO: " + std::to_string(speed),
-                               Logging::Level::VERBOSE);
+          consoleLogger.logVerbose(_prefix, "SETTING SPEED TO: %.2f", speed);
         _motor.Set(speed);
         return;
       }
 
       if (_log)
-        Logging::logToStdOut(_prefix,
-                             "NOT MOVING; AT HOME" + std::to_string(speed),
-                             Logging::Level::VERBOSE);
+        consoleLogger.logVerbose(_prefix, "NOT MOVING; AT HOME; speed=%.2f", speed);
 
       _motor.Set(0);
       return;
     }
 
     else if (AtMax()) {
-      if (_log) Logging::logToStdOut(_prefix, "AT MAX", Logging::Level::INFO);
+      if (_log)
+        consoleLogger.logInfo(_prefix, "AT MAX");
       if (speed > 0) {
         if (_log)
-          Logging::logToStdOut(_prefix,
-                               "SETTING SPEED TO: " + std::to_string(speed),
-                               Logging::Level::VERBOSE);
+          consoleLogger.logVerbose(_prefix, "SETTING SPEED TO: %.2f", speed);
         _motor.Set(speed);
         return;
       }
 
       if (_log)
-        Logging::logToStdOut(_prefix,
-                             "NOT MOVING; AT MAX " + std::to_string(speed),
-                             Logging::Level::VERBOSE);
+        consoleLogger.logVerbose(_prefix, "NOT MOVING; AT MAX; speed=%.2f", speed);
       _motor.Set(0);
       return;
     } else {
       if (_log)
-        Logging::logToStdOut(_prefix,
-                             "SETTING SPEED TO: " + std::to_string(speed),
-                             Logging::Level::VERBOSE);
+        consoleLogger.logVerbose(_prefix, "SETTING SPEED TO: %.2f", speed);
       _motor.Set(speed);
     }
   }
@@ -198,25 +186,18 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
   void UpdateMovement() override {
     if (_isMovingToPosition) {
       if (_log)
-        Logging::logToStdOut(
-            _prefix,
-            "Target Position: " + std::to_string(_targetPosition) +
-                std::string(_config.type == AxisType::Linear ? " in" : " deg"),
-            Logging::Level::INFO);
+        consoleLogger.logInfo(_prefix, "Target position: %.2f %s",
+                    _targetPosition, _config.type == AxisType::Linear ? "in" : "deg");
 
       auto res = _controller.Calculate(GetCurrentPosition(), _targetPosition) *
                  _config.pidResultMultiplier;
       auto clampedRes = std::clamp(res, -1.0, 1.0);
       if (_log)
-        Logging::logToStdOut(_prefix,
-                             "Clamped Res: " + std::to_string(clampedRes),
-                             Logging::Level::INFO);
-      Logging::logToSmartDashboard(_prefix + " TargetPos",
-                                   std::to_string(_targetPosition),
-                                   Logging::Level::INFO);
+        consoleLogger.logInfo(_prefix, "Clamped Res: %.2f", clampedRes);
+      shuffleboardLogger.logInfo(_prefix + " TargetPos", _targetPosition);
 
       if (_controller.AtSetpoint()) {
-        Logging::logToStdOut(_prefix, "REACHED GOAL", Logging::Level::INFO);
+        consoleLogger.logInfo(_prefix, "REACHED GOAL");
         StopMovement();
         return;
       }
@@ -234,7 +215,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
       if (AtLimitSwitchHome()) {
         ResetEncoder();
         if (_log)
-          Logging::logToStdOut(_prefix, "AT HOME SWITCH", Logging::Level::INFO);
+          consoleLogger.logInfo(_prefix, "AT HOME SWITCH");
         return true;
       }
     }
@@ -243,7 +224,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
     if (GetCurrentPosition() <= _config.minDistance ||
         GetCurrentPosition() >= 350.0) {
       if (_log)
-        Logging::logToStdOut(_prefix, "AT HOME ENC", Logging::Level::INFO);
+        consoleLogger.logInfo(_prefix, "AT HOME ENCODER");
       return true;
     }
 
@@ -254,7 +235,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
     if (_maxLimitSwitch) {
       if (AtLimitSwitchMax()) {
         if (_log)
-          Logging::logToStdOut(_prefix, "AT MAX SWITCH", Logging::Level::INFO);
+          consoleLogger.logInfo(_prefix, "AT MAX SWITCH");
         return true;
       }
     }
@@ -263,7 +244,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
     if (GetCurrentPosition() >= _config.maxDistance &&
         GetCurrentPosition() < 350.0) {
       if (_log)
-        Logging::logToStdOut(_prefix, "AT MAX ENC", Logging::Level::INFO);
+        consoleLogger.logInfo(_prefix, "AT MAX ENCODER");
 
       return true;
     }
@@ -275,9 +256,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
     if (_minLimitSwitch) {
       auto state = !_minLimitSwitch->Get();
       if (_log)
-        Logging::logToStdOut(_prefix,
-                             "MIN LIMIT SWITCH: " + std::to_string(state),
-                             Logging::Level::VERBOSE);
+        consoleLogger.logVerbose(_prefix, "MIN LIMIT SWITCH %d", state);
       return state;
     }
 
@@ -288,9 +267,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
     if (_maxLimitSwitch) {
       auto state = !_maxLimitSwitch->Get();
       if (_log)
-        Logging::logToStdOut(_prefix,
-                             "MAX LIMIT SWITCH: " + std::to_string(state),
-                             Logging::Level::VERBOSE);
+        consoleLogger.logVerbose(_prefix, "MAX LIMIT SWITCH %d", state);
       return state;
     }
 
@@ -299,8 +276,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
 
   void MoveToPosition(double position) override {
     if (_log)
-      Logging::logToStdOut(_prefix, "Moving to " + std::to_string(position),
-                           Logging::Level::INFO);
+      consoleLogger.logInfo(_prefix, "Moving to %.2f", position);
     _isMovingToPosition = true;
     _targetPosition =
         std::clamp(position, _config.minDistance, _config.maxDistance);
@@ -308,7 +284,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
 
   void Home() override {
     if (_log)
-      Logging::logToStdOut(_prefix, "Set homing to true", Logging::Level::INFO);
+      consoleLogger.logInfo(_prefix, "Set homing to true");
     StopMovement();
     _isHoming = true;
   }
@@ -317,7 +293,7 @@ class BaseSingleAxisSubsystem : public ISingleAxisSubsystem {
 
   inline void StopMovement() override {
     if (_log)
-      Logging::logToStdOut(_prefix, "Movement stopped", Logging::Level::INFO);
+      consoleLogger.logInfo(_prefix, "Movement stopped");
     _isHoming = false;
     _isMovingToPosition = false;
     _motor.Set(0);

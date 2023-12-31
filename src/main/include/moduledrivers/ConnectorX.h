@@ -11,7 +11,8 @@
 #include <memory>
 
 #include "Constants.h"
-#include "utils/Logger.h"
+#include "utils/ShuffleboardLogger.h"
+#include "utils/ConsoleLogger.h"
 
 namespace ConnectorX {
 struct Message {

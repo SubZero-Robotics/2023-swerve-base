@@ -16,7 +16,7 @@
 
 #include "Constants.h"
 #include "MAXSwerveModule.h"
-#include "utils/Logger.h"
+#include "utils/ConsoleLogger.h"
 
 class DriveSubsystem : public frc2::SubsystemBase {
  public:
