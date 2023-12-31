@@ -331,6 +331,11 @@ class ConnectorXBoard : public frc2::SubsystemBase {
   void setColor(LedPort port, uint32_t color);
 
   /**
+   * @brief Get the current on-board Color, not the cached one
+  */
+  frc::Color8Bit getCurrentColor(LedPort port);
+
+  /**
    * @brief Read if pattern is done running
    *
    * @return true if pattern is done
@@ -357,8 +362,6 @@ class ConnectorXBoard : public frc2::SubsystemBase {
    * @param message
    */
   void sendRadioMessage(Message message);
-
-  frc::Color8Bit getCurrentColor(LedPort port);
 
   /**
    * @brief Read the last received message

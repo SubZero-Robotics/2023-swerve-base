@@ -185,18 +185,25 @@ Message ConnectorX::ConnectorXBoard::getLatestRadioMessage() {
   return res.responseData.responseRadioLastReceived.msg;
 }
 
-frc::Color8Bit ConnectorX::ConnectorXBoard::GetColor(LedPort port) {
+frc::Color8Bit ConnectorX::ConnectorXBoard::getCurrentColor(LedPort port) {
   if (m_simDevice) {
     return frc::Color8Bit(m_simColorR.Get(), m_simColorG.Get(),
                           m_simColorB.Get());
   }
 
+  setLedPort(port);
+
   Commands::Command cmd;
   cmd.commandType = Commands::CommandType::GetColor;
-  cmd.commandData.commandGetColor = port;
+  cmd.commandData.commandGetColor = {};
 
   Commands::Response res = sendCommand(cmd, true);
-  return frc::Color8Bit(static_cast<double>((res.responseData.responseGetColor >> 16) & 0xff) / 255.0, static_cast<double>((res.responseData.responseGetColor >> 8) & 0xff) / 255.0, static_cast<double>(res.responseData.responseGetColor & 0xff) / 255.0);
+  auto color = res.responseData.responseReadColor.color;
+  return frc::Color8Bit(
+    (color >> 16),
+    (color >> 8) & 0xff,
+    color & 0xff
+  );
 }
 
 Commands::Response ConnectorX::ConnectorXBoard::sendCommand(
@@ -204,7 +211,7 @@ Commands::Response ConnectorX::ConnectorXBoard::sendCommand(
   using namespace Commands;
 
   _lastCommand = command.commandType;
-  uint8_t sendLen;
+  uint8_t sendLen = 0;
   uint8_t recSize = 0;
   Response response;
   response.commandType = command.commandType;
