@@ -5,7 +5,7 @@
 #include <frc2/command/SubsystemBase.h>
 #include "moduledrivers/ConnectorX.h"
 
-#include "constants.h"
+#include "Constants.h"
 #include "ColorConstants.h"
 
 using namespace CANSparkMaxConstants;
