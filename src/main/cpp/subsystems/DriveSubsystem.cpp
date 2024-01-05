@@ -16,6 +16,12 @@
 #include "utils/SwerveUtils.h"
 #include "utils/ShuffleboardLogger.h"
 
+#include <pathplanner/lib/auto/AutoBuilder.h>
+#include <pathplanner/lib/util/HolonomicPathFollowerConfig.h>
+#include <pathplanner/lib/util/PIDConstants.h>
+#include <pathplanner/lib/util/ReplanningConfig.h>
+#include <pathplanner/lib/path/PathPlannerPath.h>
+
 using namespace DriveConstants;
 
 DriveSubsystem::DriveSubsystem()
@@ -34,6 +40,31 @@ DriveSubsystem::DriveSubsystem()
                  frc::Pose2d{}} {
   // put a field2d in NT
   frc::SmartDashboard::PutData("Field", &m_field);
+
+      pathplanner::AutoBuilder::configureHolonomic(
+        [this]() {
+            return GetPose();
+        },
+        [this](frc::Pose2d pose) -> void
+        {
+            ResetOdometry(pose);
+        },
+        [this]() -> frc::ChassisSpeeds
+        {
+            return getSpeed();
+        },
+        [this](frc::ChassisSpeeds speeds) -> void
+        {
+            Drive(speeds);
+        },
+        pathplanner::HolonomicPathFollowerConfig(
+            pathplanner::PIDConstants(0.5, 0.0, 0.0), // Translation PID constants
+            pathplanner::PIDConstants(0.5, 0.0, 0.0), // Rotation PID constants
+            4.5_mps,                     // Max module speed, in m/s
+            0.4_m,                       // Drive base radius in meters. Distance from robot center to furthest module.
+            pathplanner::ReplanningConfig()           // Default path replanning config. See the API for the options here),
+            ),
+        this);
 }
 
 void DriveSubsystem::Periodic() {
@@ -134,15 +165,12 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
   units::radians_per_second_t rotDelivered =
       m_currentRotation * DriveConstants::kMaxAngularSpeed;
 
-  auto states =
-      kDriveKinematics.ToSwerveModuleStates(DriveSubsystem::discretize(
-          fieldRelative
-              ? frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-                    xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                    frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}))
-              : frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered,
-                                   rotDelivered},
-          (driveLoopTime * 4)));
+auto states = kDriveKinematics.ToSwerveModuleStates(
+      fieldRelative
+          ? frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+                xSpeedDelivered, ySpeedDelivered, rotDelivered,
+                frc::Rotation2d(units::degree_t{-m_gyro.GetAngle()}))
+          : frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered, rotDelivered});
 
   kDriveKinematics.DesaturateWheelSpeeds(&states, DriveConstants::kMaxSpeed);
 
@@ -163,6 +191,15 @@ void DriveSubsystem::Drive(frc::ChassisSpeeds speeds) {
   DriveSubsystem::SetModuleStates(
       kDriveKinematics.ToSwerveModuleStates(speeds));
 }
+
+frc::ChassisSpeeds DriveSubsystem::getSpeed() {
+    auto fl = m_frontLeft.GetState();
+    auto fr = m_frontRight.GetState();
+    auto rl = m_rearLeft.GetState();
+    auto rr = m_rearRight.GetState();
+
+    return kDriveKinematics.ToChassisSpeeds(fl, fr, rl, rr);
+  }
 
 void DriveSubsystem::SetX() {
   m_frontLeft.SetDesiredState(
@@ -205,21 +242,6 @@ void DriveSubsystem::ZeroHeading() { m_gyro.Reset(); }
 double DriveSubsystem::GetTurnRate() { return -m_gyro.GetRate(); }
 
 frc::Pose2d DriveSubsystem::GetPose() { return m_odometry.GetPose(); }
-
-frc::ChassisSpeeds DriveSubsystem::discretize(units::meters_per_second_t vx,
-                                              units::meters_per_second_t vy,
-                                              units::radians_per_second_t omega,
-                                              units::second_t dt) {
-  frc::Pose2d desiredDeltaPose{vx * dt, vy * dt, omega * dt};
-  frc::Twist2d twist = frc::Pose2d{}.Log(desiredDeltaPose);
-  return frc::ChassisSpeeds{twist.dx / dt, twist.dy / dt, twist.dtheta / dt};
-}
-
-frc::ChassisSpeeds DriveSubsystem::discretize(
-    frc::ChassisSpeeds continuousSpeeds, units::second_t dt) {
-  return discretize(continuousSpeeds.vx, continuousSpeeds.vy,
-                    continuousSpeeds.omega, dt);
-}
 
 void DriveSubsystem::ResetOdometry(frc::Pose2d pose) {
   m_odometry.ResetPosition(
